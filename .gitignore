@@ -2,12 +2,15 @@
 
 # dependencies
 node_modules/
+package-lock.json
+yarn.lock
 
 # Expo
 .expo/
 dist/
 web-build/
 expo-env.d.ts
+.expo-shared/
 
 # Native
 .kotlin/
@@ -17,25 +20,56 @@ expo-env.d.ts
 *.p12
 *.key
 *.mobileprovision
+*.pem
 
 # Metro
 .metro-health-check*
 
-# debug
+# debug & logs
 npm-debug.*
 yarn-debug.*
 yarn-error.*
+*.log
+lerna-debug.log*
 
 # macOS
 .DS_Store
-*.pem
+.AppleDouble
+.LSOverride
 
-# local env files
-.env*.local
+# IDE & Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.vim/
+.DS_Store
 
-# typescript
+# Environment variables
+.env
+.env.local
+.env.*.local
+.env.production.local
+.env.test.local
+.env.development.local
+
+# TypeScript
 *.tsbuildinfo
+
+# Build & Cache
+build/
+.cache/
+.parcel-cache/
+.turbo/
+
+# OS generated files
+Thumbs.db
 
 # generated native folders
 /ios
 /android
+
+# temporary files
+*.tmp
+*.bak
