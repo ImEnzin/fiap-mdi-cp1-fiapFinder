@@ -231,10 +231,11 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 30,
   },
   image: {
-    width: width * 0.55,
-    height: width * 0.45,
-    borderRadius: 14,
+    width: Math.min(width * 0.48, 300),
+    height: Math.min(width * 0.48 * 1.2, 360),
+    borderRadius: 18,
     backgroundColor: Colors.darkGray,
+    resizeMode: 'cover',
   },
   infoSection: {
     paddingHorizontal: 20,
@@ -307,12 +308,12 @@ const styles = StyleSheet.create({
     padding: 14,
     marginBottom: 20,
     borderLeftWidth: 4,
-    borderLeftColor: '#FFC107',
+    borderLeftColor: '#FF0055',
   },
   obsText: {
     fontSize: 14,
     lineHeight: 22,
-    color: '#6D4C00',
+    color: '#FF0055',
   },
   descLabel: {
     fontSize: 16,
@@ -361,7 +362,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   unavailableText: {
-    color: '#F57C00',
+    color: '#FF0055',
     fontWeight: '600',
     fontSize: 14,
     textAlign: 'center',

@@ -28,7 +28,7 @@ const PERFIS_OPTIONS = [
     desc: '2 livros • 7 dias',
     email: 'aluno@fiap.com.br',
     senha: '123456',
-    color: '#1976D2',
+    color: '#FF0055',
     bg: '#E3F2FD',
   },
   {
@@ -38,7 +38,7 @@ const PERFIS_OPTIONS = [
     desc: '4 livros • 14 dias',
     email: 'professor@fiap.com.br',
     senha: '123456',
-    color: '#7B1FA2',
+    color: '#FF0055',
     bg: '#F3E5F5',
   },
   {
@@ -48,7 +48,7 @@ const PERFIS_OPTIONS = [
     desc: 'Gestão completa',
     email: 'atendente@fiap.com.br',
     senha: '123456',
-    color: '#E65100',
+    color: '#FF0055',
     bg: '#FFF3E0',
   },
 ];

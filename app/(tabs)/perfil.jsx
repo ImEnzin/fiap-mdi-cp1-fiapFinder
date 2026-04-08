@@ -18,9 +18,9 @@ import { useItens } from '../../context/ItensContext';
 const { width } = Dimensions.get('window');
 
 const PERFIL_THEME = {
-  aluno: { accent: '#1976D2', bg: '#E3F2FD', icon: 'school' },
-  professor: { accent: '#7B1FA2', bg: '#F3E5F5', icon: 'briefcase' },
-  atendente: { accent: '#E65100', bg: '#FFF3E0', icon: 'shield-checkmark' },
+  aluno: { accent: '#FF0055', bg: '#E3F2FD', icon: 'school' },
+  professor: { accent: '##FF0055', bg: '#F3E5F5', icon: 'briefcase' },
+  atendente: { accent: '#FF0055', bg: '#FFF3E0', icon: 'shield-checkmark' },
 };
 
 // ========================= PROGRESS BAR =========================
@@ -62,28 +62,28 @@ function SistemaAtendente({ usuario, livros, itens, router, handleLogout }) {
 
   return (
     <View style={styles.container}>
-      <View style={[styles.header, { borderBottomColor: '#E65100' }]}>
-        <View style={[styles.avatar, { backgroundColor: '#E65100' }]}>
+      <View style={[styles.header, { borderBottomColor: '#FF0055' }]}>
+        <View style={[styles.avatar, { backgroundColor: '#FF0055' }]}>
           <Ionicons name="settings" size={36} color="#FFF" />
         </View>
         <Text style={styles.name}>Sistema FIAP Finder</Text>
         <Text style={styles.email}>Painel Admin — {usuario?.nome}</Text>
         <View style={[styles.tipoBadge, { backgroundColor: 'rgba(255,255,255,0.15)' }]}>
-          <Ionicons name="shield-checkmark" size={12} color="#E65100" />
-          <Text style={[styles.tipoText, { color: '#E65100' }]}>Atendente</Text>
+          <Ionicons name="shield-checkmark" size={12} color="#FF0055" />
+          <Text style={[styles.tipoText, { color: '#FF0055' }]}>Atendente</Text>
         </View>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
         {/* Estatísticas do Acervo */}
         <View style={ss.sectionRow}>
-          <Ionicons name="bar-chart" size={18} color="#E65100" />
+          <Ionicons name="bar-chart" size={18} color="#FF0055" />
           <Text style={ss.sectionTitle}>Estatísticas do Acervo</Text>
         </View>
         <View style={ss.statsGrid}>
           <View style={[ss.statCard, { backgroundColor: '#111' }]}>
-            <Ionicons name="library" size={20} color="#E65100" />
-            <Text style={[ss.statNum, { color: '#E65100' }]}>{total}</Text>
+            <Ionicons name="library" size={20} color="#FF0055" />
+            <Text style={[ss.statNum, { color: '#FF0055' }]}>{total}</Text>
             <Text style={ss.statLabel}>Total Acervo</Text>
           </View>
           <View style={[ss.statCard, { backgroundColor: Colors.success }]}>
@@ -105,19 +105,19 @@ function SistemaAtendente({ usuario, livros, itens, router, handleLogout }) {
 
         {/* Saúde do Acervo */}
         <View style={ss.sectionRow}>
-          <Ionicons name="pulse" size={18} color="#E65100" />
+          <Ionicons name="pulse" size={18} color="#FF0055" />
           <Text style={ss.sectionTitle}>Saúde do Acervo</Text>
         </View>
         <View style={ss.card}>
           <ProgressBar value={disponiveis.length} max={total} color={Colors.success} label="Disponibilidade" />
           <ProgressBar value={emCirculacao} max={total} color={Colors.info} label="Circulação" />
-          <ProgressBar value={reservados.length} max={total} color="#7B1FA2" label="Aguardando Retirada" />
+          <ProgressBar value={reservados.length} max={total} color="##FF0055" label="Aguardando Retirada" />
           <ProgressBar value={atrasados.length} max={total} color={Colors.error} label="Taxa de Atraso" />
         </View>
 
         {/* KPI Indicators */}
         <View style={ss.sectionRow}>
-          <Ionicons name="analytics" size={18} color="#E65100" />
+          <Ionicons name="analytics" size={18} color="#FF0055" />
           <Text style={ss.sectionTitle}>Indicadores</Text>
         </View>
         <View style={ss.indicatorGrid}>
@@ -125,9 +125,9 @@ function SistemaAtendente({ usuario, livros, itens, router, handleLogout }) {
             { label: 'Disponibilidade', value: `${taxaDisponibilidade}%`, icon: 'checkmark-circle', color: Colors.success, bg: '#E8F5E9' },
             { label: 'Circulação', value: `${taxaCirculacao}%`, icon: 'trending-up', color: Colors.info, bg: '#E3F2FD' },
             { label: 'Taxa de Atraso', value: `${taxaAtraso}%`, icon: 'warning', color: atrasados.length > 0 ? Colors.error : Colors.success, bg: atrasados.length > 0 ? '#FFEBEE' : '#E8F5E9' },
-            { label: 'Entrega Itens', value: `${taxaEntregaItens}%`, icon: 'cube', color: '#F57C00', bg: '#FFF3E0' },
-            { label: 'Usuários Ativos', value: `${usuariosAtivos.length}`, icon: 'people', color: '#7B1FA2', bg: '#F3E5F5' },
-            { label: 'Reservas Pendentes', value: `${reservados.length}`, icon: 'bookmark', color: '#E65100', bg: '#FFF3E0' },
+            { label: 'Entrega Itens', value: `${taxaEntregaItens}%`, icon: 'cube', color: '##FF0055', bg: '#FFF3E0' },
+            { label: 'Usuários Ativos', value: `${usuariosAtivos.length}`, icon: 'people', color: '##FF0055', bg: '#F3E5F5' },
+            { label: 'Reservas Pendentes', value: `${reservados.length}`, icon: 'bookmark', color: '#FF0055', bg: '#FFF3E0' },
           ].map((ind, i) => (
             <View key={i} style={[ss.indicator, { backgroundColor: ind.bg }]}>
               <Ionicons name={ind.icon} size={18} color={ind.color} />
@@ -139,18 +139,18 @@ function SistemaAtendente({ usuario, livros, itens, router, handleLogout }) {
 
         {/* Itens Achados */}
         <View style={ss.sectionRow}>
-          <Ionicons name="cube" size={18} color="#E65100" />
+          <Ionicons name="cube" size={18} color="#FF0055" />
           <Text style={ss.sectionTitle}>Achados e Perdidos</Text>
         </View>
         <View style={ss.card}>
           <ProgressBar value={encontrados.length} max={itens.length} color={Colors.info} label="Aguardando Dono" />
-          <ProgressBar value={solicitados.length} max={itens.length} color="#F57C00" label="Solicitados" />
+          <ProgressBar value={solicitados.length} max={itens.length} color="##FF0055" label="Solicitados" />
           <ProgressBar value={retirados.length} max={itens.length} color={Colors.success} label="Entregues" />
         </View>
 
         {/* System Info */}
         <View style={ss.sectionRow}>
-          <Ionicons name="information-circle" size={18} color="#E65100" />
+          <Ionicons name="information-circle" size={18} color="#FF0055" />
           <Text style={ss.sectionTitle}>Sobre o Sistema</Text>
         </View>
         <View style={ss.infoCard}>
@@ -164,7 +164,7 @@ function SistemaAtendente({ usuario, livros, itens, router, handleLogout }) {
             <React.Fragment key={item.label}>
               <View style={ss.infoRow}>
                 <View style={[ss.infoIcon, { backgroundColor: '#FFF3E0' }]}>
-                  <Ionicons name={item.icon} size={18} color="#E65100" />
+                  <Ionicons name={item.icon} size={18} color="#FF0055" />
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={ss.infoLabel}>{item.label}</Text>
@@ -319,10 +319,11 @@ export default function Perfil() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F6F6F6' },
+  container: { flex: 1, backgroundColor: Colors.black },
   header: {
-    backgroundColor: '#111', paddingTop: 52, paddingBottom: 24, alignItems: 'center',
-    borderBottomLeftRadius: 28, borderBottomRightRadius: 28, borderBottomWidth: 3,
+    backgroundColor: Colors.black, paddingTop: 52, paddingBottom: 28, alignItems: 'center',
+    borderBottomLeftRadius: 32, borderBottomRightRadius: 32, borderBottomWidth: 4,
+    borderBottomColor: Colors.primary,
   },
   avatar: {
     width: 80, height: 80, borderRadius: 24, alignItems: 'center', justifyContent: 'center', marginBottom: 12,
@@ -334,7 +335,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14, paddingVertical: 6, borderRadius: 20, marginTop: 10,
   },
   tipoText: { fontSize: 12, fontWeight: '700' },
-  scroll: { paddingHorizontal: 16, paddingTop: 20, paddingBottom: 40 },
+  scroll: { paddingHorizontal: 20, paddingTop: 24, paddingBottom: 48 },
   statsRow: { flexDirection: 'row', gap: 10, marginBottom: 24 },
   statCard: {
     flex: 1, borderRadius: 18, paddingVertical: 16, alignItems: 'center',
@@ -344,8 +345,9 @@ const styles = StyleSheet.create({
   sectionRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 },
   sectionTitle: { fontSize: 17, fontWeight: '800', color: '#222' },
   limitsCard: {
-    backgroundColor: '#FFF', borderRadius: 18, padding: 16, marginBottom: 24,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 3,
+    backgroundColor: Colors.cardBg, borderRadius: 20, padding: 20, marginBottom: 28,
+    shadowColor: Colors.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.25, shadowRadius: 16, elevation: 8,
+    borderWidth: 1, borderColor: Colors.borderGray,
   },
   limitRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10 },
   limitIcon: {

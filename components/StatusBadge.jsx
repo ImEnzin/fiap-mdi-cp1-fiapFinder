@@ -3,13 +3,13 @@ import { View, Text, StyleSheet } from 'react-native';
 import Colors from '../constants/colors';
 
 const STATUS_CONFIG = {
-  disponivel: { label: 'Disponível', bg: '#E8F5E9', color: Colors.success },
-  reservado: { label: 'Reservado', bg: '#FFF3E0', color: '#F57C00' },
-  emprestado: { label: 'Emprestado', bg: '#E3F2FD', color: Colors.info },
-  atrasado: { label: 'Atrasado', bg: '#FFEBEE', color: Colors.error },
-  encontrado: { label: 'Encontrado', bg: '#E3F2FD', color: Colors.info },
-  solicitado: { label: 'Solicitado', bg: '#FFF3E0', color: '#F57C00' },
-  retirado: { label: 'Retirado', bg: '#E8F5E9', color: Colors.success },
+  disponivel: { label: 'Disponível', bg: Colors.success + '20', color: Colors.success },
+  reservado: { label: 'Reservado', bg: Colors.primary + '20', color: Colors.primary },
+  emprestado: { label: 'Emprestado', bg: Colors.info + '20', color: Colors.info },
+  atrasado: { label: 'Atrasado', bg: Colors.error + '20', color: Colors.error },
+  encontrado: { label: 'Encontrado', bg: Colors.info + '20', color: Colors.info },
+  solicitado: { label: 'Solicitado', bg: Colors.primary + '20', color: Colors.primary },
+  retirado: { label: 'Retirado', bg: Colors.success + '20', color: Colors.success },
 };
 
 export default function StatusBadge({ status }) {

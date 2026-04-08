@@ -15,9 +15,9 @@ import { formatDate } from '../../utils/dateUtils';
 const STATUS_FILTROS = ['Todos', 'encontrado', 'solicitado', 'retirado'];
 
 const PERFIL_THEME = {
-  aluno: { accent: '#1976D2' },
-  professor: { accent: '#7B1FA2' },
-  atendente: { accent: '#E65100' },
+  aluno: { accent: '#FF0055' },
+  professor: { accent: '#FF0055' },
+  atendente: { accent: '#FF0055' },
 };
 
 // ========================= GESTÃO DE ITENS (ATENDENTE) =========================
@@ -59,7 +59,7 @@ function GestaoItens({ itens, router, confirmarRetiradaItem }) {
     const isSolicitado = it.status === 'solicitado';
     const isRetirado = it.status === 'retirado';
     const bg = isSolicitado ? '#FFF3E0' : isRetirado ? '#E8F5E9' : '#F5F5F5';
-    const borderColor = isSolicitado ? '#F57C00' : isRetirado ? Colors.success : '#E0E0E0';
+    const borderColor = isSolicitado ? '#FF0055' : isRetirado ? Colors.success : '#E0E0E0';
 
     return (
       <TouchableOpacity style={[gs.card, { backgroundColor: bg, borderLeftColor: borderColor }]} onPress={() => router.push(`/item/${it.id}`)}>
@@ -78,8 +78,8 @@ function GestaoItens({ itens, router, confirmarRetiradaItem }) {
           )}
           {it.solicitadoPor && (
             <View style={gs.metaRow}>
-              <Ionicons name="person" size={11} color="#F57C00" />
-              <Text style={[gs.metaText, { color: '#F57C00', fontWeight: '700' }]}>{it.solicitadoPor}</Text>
+              <Ionicons name="person" size={11} color="#FF0055" />
+              <Text style={[gs.metaText, { color: '##FF0055', fontWeight: '700' }]}>{it.solicitadoPor}</Text>
             </View>
           )}
           {it.dataSolicitacao && (
@@ -92,7 +92,7 @@ function GestaoItens({ itens, router, confirmarRetiradaItem }) {
           <View style={gs.actionRow}>
             <StatusBadge status={it.status} />
             {isSolicitado && (
-              <TouchableOpacity style={[gs.actionBtn, { backgroundColor: '#E65100' }]} onPress={() => handleConfirmarEntrega(it)}>
+              <TouchableOpacity style={[gs.actionBtn, { backgroundColor: '#FF0055' }]} onPress={() => handleConfirmarEntrega(it)}>
                 <Ionicons name="checkmark-circle" size={12} color="#FFF" />
                 <Text style={gs.actionBtnText}>Entregar</Text>
               </TouchableOpacity>
@@ -105,9 +105,9 @@ function GestaoItens({ itens, router, confirmarRetiradaItem }) {
 
   return (
     <View style={styles.container}>
-      <View style={[styles.header, { borderBottomColor: '#E65100' }]}>
+      <View style={[styles.header, { borderBottomColor: '#FF0055' }]}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-          <Ionicons name="cube" size={22} color="#E65100" />
+          <Ionicons name="cube" size={22} color="#FF0055" />
           <Text style={styles.headerTitle}>Gestão de Itens</Text>
         </View>
         <Text style={styles.headerSub}>{itens.length} itens • {solicitados.length} p/ entregar</Text>
@@ -129,8 +129,8 @@ function GestaoItens({ itens, router, confirmarRetiradaItem }) {
                 <Text style={gs.kpiLabel}>Aguardando</Text>
               </View>
               <View style={[gs.kpi, { backgroundColor: '#FFF3E0' }]}>
-                <Ionicons name="hand-left" size={16} color="#F57C00" />
-                <Text style={[gs.kpiNum, { color: '#F57C00' }]}>{solicitados.length}</Text>
+                <Ionicons name="hand-left" size={16} color="#FF0055" />
+                <Text style={[gs.kpiNum, { color: '#FF0055' }]}>{solicitados.length}</Text>
                 <Text style={gs.kpiLabel}>Solicitados</Text>
               </View>
               <View style={[gs.kpi, { backgroundColor: '#E8F5E9' }]}>
@@ -168,7 +168,7 @@ function GestaoItens({ itens, router, confirmarRetiradaItem }) {
                 return (
                   <TouchableOpacity
                     key={f}
-                    style={[styles.filterChip, filtroStatus === f && { backgroundColor: '#E65100', borderColor: '#E65100' }]}
+                    style={[styles.filterChip, filtroStatus === f && { backgroundColor: '#FF0055', borderColor: '#FF0055' }]}
                     onPress={() => setFiltroStatus(f)}
                   >
                     <Ionicons name={statusIcons[f]} size={14} color={filtroStatus === f ? '#FFF' : '#999'} />
@@ -261,8 +261,8 @@ export default function Achados() {
                 <Text style={styles.statLbl}>Encontrados</Text>
               </View>
               <View style={[styles.statBox, { backgroundColor: '#FFF3E0' }]}>
-                <Ionicons name="hand-left" size={18} color="#F57C00" />
-                <Text style={[styles.statNum, { color: '#F57C00' }]}>{solicitados}</Text>
+                <Ionicons name="hand-left" size={18} color="#FF0055" />
+                <Text style={[styles.statNum, { color: '#FF0055' }]}>{solicitados}</Text>
                 <Text style={styles.statLbl}>Solicitados</Text>
               </View>
               <View style={[styles.statBox, { backgroundColor: '#E8F5E9' }]}>
@@ -341,7 +341,7 @@ const gs = StyleSheet.create({
   kpiNum: { fontSize: 18, fontWeight: '900' },
   kpiLabel: { fontSize: 9, color: '#888', fontWeight: '600' },
   pendingBar: {
-    backgroundColor: '#F57C00', borderRadius: 12, padding: 12,
+    backgroundColor: '#FF0055', borderRadius: 12, padding: 12,
     flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 14,
   },
   pendingBarText: { color: '#FFF', fontSize: 13, fontWeight: '700', flex: 1 },
@@ -353,7 +353,7 @@ const gs = StyleSheet.create({
     borderRadius: 12, borderWidth: 1, borderColor: '#E0E0E0',
   },
   catChipText: { fontSize: 11, color: '#666', fontWeight: '600' },
-  catChipNum: { fontSize: 11, color: '#E65100', fontWeight: '800' },
+  catChipNum: { fontSize: 11, color: '#FF0055', fontWeight: '800' },
   card: {
     flexDirection: 'row', backgroundColor: '#FFF', borderRadius: 14, padding: 10,
     marginBottom: 10, borderLeftWidth: 4, alignItems: 'flex-start',

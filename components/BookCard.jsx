@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '../constants/colors';
@@ -19,6 +19,7 @@ const CAT_ICONS = {
 export default function BookCard({ livro }) {
   const router = useRouter();
   const catIcon = CAT_ICONS[livro.categoria] || 'book';
+  const { width: screenWidth } = Dimensions.get('window');
 
   return (
     <TouchableOpacity
@@ -27,7 +28,7 @@ export default function BookCard({ livro }) {
       onPress={() => router.push(`/livro/${livro.id}`)}
     >
       <View style={styles.coverWrap}>
-        <Image source={{ uri: livro.capa }} style={styles.cover} />
+        <Image source={{ uri: livro.capa }} style={[styles.cover, { width: Math.min(90, screenWidth * 0.22), height: Math.min(130, screenWidth * 0.32) }]} />
       </View>
       <View style={styles.info}>
         <Text style={styles.title} numberOfLines={2}>{livro.titulo}</Text>
@@ -47,66 +48,66 @@ export default function BookCard({ livro }) {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: Colors.white,
-    borderRadius: 18,
+    backgroundColor: Colors.cardBg,
+    borderRadius: 24,
     flexDirection: 'row',
-    padding: 10,
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.08,
-    shadowRadius: 10,
-    elevation: 4,
+    padding: 20,
+    marginBottom: 20,
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.4,
+    shadowRadius: 20,
+    elevation: 12,
+    borderWidth: 1,
+    borderColor: Colors.borderGray,
   },
   coverWrap: {
-    borderRadius: 12,
+    borderRadius: 16,
     overflow: 'hidden',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 6,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 8,
   },
   cover: {
-    width: 85,
-    height: 120,
-    backgroundColor: Colors.lightGray,
+    backgroundColor: Colors.mediumGray,
   },
   info: {
     flex: 1,
-    marginLeft: 14,
-    justifyContent: 'center',
-    gap: 5,
+    marginLeft: 20,
+    justifyContent: 'space-between',
   },
   title: {
-    fontSize: 15,
-    fontWeight: '800',
-    color: '#111',
-    letterSpacing: -0.2,
+    fontSize: 18,
+    fontWeight: '900',
+    color: Colors.white,
+    letterSpacing: 0.3,
+    lineHeight: 24,
   },
   author: {
-    fontSize: 13,
-    color: '#888',
+    fontSize: 15,
+    color: Colors.lightGray,
+    fontWeight: '600',
   },
   catRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
+    gap: 8,
   },
   category: {
-    fontSize: 12,
+    fontSize: 14,
     color: Colors.primary,
-    fontWeight: '700',
+    fontWeight: '800',
   },
   footer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginTop: 2,
   },
   year: {
-    fontSize: 11,
-    color: '#BBB',
-    fontWeight: '600',
+    fontSize: 13,
+    color: Colors.mediumGray,
+    fontWeight: '700',
   },
 });

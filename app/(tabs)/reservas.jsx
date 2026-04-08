@@ -11,9 +11,9 @@ import { useItens } from '../../context/ItensContext';
 import { calcularDiasRestantes, formatDate } from '../../utils/dateUtils';
 
 const PERFIL_THEME = {
-  aluno: { accent: '#1976D2', bg: '#E3F2FD', icon: 'school' },
-  professor: { accent: '#7B1FA2', bg: '#F3E5F5', icon: 'briefcase' },
-  atendente: { accent: '#E65100', bg: '#FFF3E0', icon: 'shield-checkmark' },
+  aluno: { accent: '#FF0055', bg: '#E3F2FD', icon: 'school' },
+  professor: { accent: '#FF0055', bg: '#F3E5F5', icon: 'briefcase' },
+  atendente: { accent: '#FF0055', bg: '#FFF3E0', icon: 'shield-checkmark' },
 };
 
 // ========================= GESTÃO DE EMPRÉSTIMOS (ATENDENTE) =========================
@@ -42,7 +42,7 @@ function GestaoEmprestimos({ livros, itens, router, confirmarRetirada, confirmar
     porUsuario[email].push(l);
   });
 
-  const getColor = (d) => d < 0 ? Colors.error : d === 0 ? '#D84315' : d <= 3 ? '#F57C00' : d <= 5 ? '#FFA726' : Colors.success;
+  const getColor = (d) => d < 0 ? Colors.error : d === 0 ? '#FF0055' : d <= 3 ? '#FF0055' : d <= 5 ? '#FF0055' : Colors.success;
   const getBg = (d) => d < 0 ? '#FFEBEE' : d === 0 ? '#FBE9E7' : d <= 3 ? '#FFF3E0' : d <= 5 ? '#FFF8E1' : '#F5F5F5';
 
   const handleConfirmarRetirada = (livro) => {
@@ -68,9 +68,9 @@ function GestaoEmprestimos({ livros, itens, router, confirmarRetirada, confirmar
 
   return (
     <View style={styles.container}>
-      <View style={[styles.header, { borderBottomColor: '#E65100' }]}>
+      <View style={[styles.header, { borderBottomColor: '#FF0055' }]}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-          <Ionicons name="swap-horizontal" size={22} color="#E65100" />
+          <Ionicons name="swap-horizontal" size={22} color="#FF0055" />
           <Text style={styles.headerTitle}>Gestão de Empréstimos</Text>
         </View>
         <Text style={styles.headerSub}>{todosAtivos.length} ativo(s) • {atrasados.length} atrasados • {itensSolicitados.length} itens p/ entregar</Text>
@@ -88,11 +88,11 @@ function GestaoEmprestimos({ livros, itens, router, confirmarRetirada, confirmar
             <Text style={gs.kpiLabel}>Emprestados</Text>
           </View>
           <View style={[gs.kpi, { backgroundColor: '#F3E5F5' }]}>
-            <Text style={[gs.kpiNum, { color: '#7B1FA2' }]}>{reservados.length}</Text>
+            <Text style={[gs.kpiNum, { color: '##FF0055' }]}>{reservados.length}</Text>
             <Text style={gs.kpiLabel}>Reservados</Text>
           </View>
           <View style={[gs.kpi, { backgroundColor: '#FFF3E0' }]}>
-            <Text style={[gs.kpiNum, { color: '#F57C00' }]}>{itensSolicitados.length}</Text>
+            <Text style={[gs.kpiNum, { color: '#FF0055' }]}>{itensSolicitados.length}</Text>
             <Text style={gs.kpiLabel}>Itens</Text>
           </View>
         </View>
@@ -120,13 +120,13 @@ function GestaoEmprestimos({ livros, itens, router, confirmarRetirada, confirmar
                   <Text style={gs.userName}>{nomeDisplay}</Text>
                   <Text style={gs.userEmail}>{email}</Text>
                 </View>
-                <View style={[gs.countBadge, { backgroundColor: temAtraso ? Colors.error : '#E65100' }]}>
+                <View style={[gs.countBadge, { backgroundColor: temAtraso ? Colors.error : '#FF0055' }]}>
                   <Text style={gs.countBadgeText}>{userLivros.length}</Text>
                 </View>
               </View>
               {userLivros.map((l) => {
                 const d = l.dataPrevistaDevolucao ? calcularDiasRestantes(l.dataPrevistaDevolucao) : null;
-                const c = d !== null ? getColor(d) : (l.status === 'reservado' ? '#7B1FA2' : '#999');
+                const c = d !== null ? getColor(d) : (l.status === 'reservado' ? '#FF0055' : '#999');
                 const bg = d !== null ? getBg(d) : (l.status === 'reservado' ? '#F3E5F5' : '#F5F5F5');
                 return (
                   <TouchableOpacity key={l.id} style={[gs.loanCard, { backgroundColor: bg, borderLeftColor: c }]} onPress={() => router.push(`/livro/${l.id}`)}>
@@ -138,11 +138,12 @@ function GestaoEmprestimos({ livros, itens, router, confirmarRetirada, confirmar
                           {d < 0 ? `${Math.abs(d)}d atraso` : d === 0 ? 'VENCE HOJE' : `${d}d restante(s)`} • {formatDate(l.dataPrevistaDevolucao)}
                         </Text>
                       )}
-                      {l.status === 'reservado' && <Text style={[gs.loanMeta, { color: '#7B1FA2' }]}>Aguardando retirada</Text>}
+                      {l.status === 'reservado' && <Text style={[gs.loanMeta, { color: '#FF0055' }]}>Aguardando retirada</Text>}
+                      {l.status === 'reservado' && <Text style={[gs.loanMeta, { color: '#FF0055' }]}>Aguardando retirada</Text>}
                       <View style={gs.loanActions}>
                         <StatusBadge status={l.status} />
                         {l.status === 'reservado' && (
-                          <TouchableOpacity style={[gs.actionBtn, { backgroundColor: '#E65100' }]} onPress={() => handleConfirmarRetirada(l)}>
+                          <TouchableOpacity style={[gs.actionBtn, { backgroundColor: '#FF0055' }]} onPress={() => handleConfirmarRetirada(l)}>
                             <Ionicons name="log-out" size={11} color="#FFF" />
                             <Text style={gs.actionBtnText}>Entregar</Text>
                           </TouchableOpacity>
@@ -174,15 +175,15 @@ function GestaoEmprestimos({ livros, itens, router, confirmarRetirada, confirmar
           <>
             <Text style={[gs.sectionTitle, { marginTop: 16 }]}>Itens Aguardando Entrega</Text>
             {itensSolicitados.map((it) => (
-              <TouchableOpacity key={it.id} style={[gs.loanCard, { backgroundColor: '#FFF3E0', borderLeftColor: '#F57C00' }]} onPress={() => router.push(`/item/${it.id}`)}>
+              <TouchableOpacity key={it.id} style={[gs.loanCard, { backgroundColor: '#FFF3E0', borderLeftColor: '#FF0055' }]} onPress={() => router.push(`/item/${it.id}`)}>
                 <Image source={{ uri: it.imagem }} style={[gs.loanImg, { borderRadius: 10 }]} />
                 <View style={gs.loanInfo}>
                   <Text style={gs.loanTitle} numberOfLines={1}>{it.nome}</Text>
                   <Text style={gs.loanMeta}>{it.localEncontrado}</Text>
-                  {it.solicitadoPor && <Text style={[gs.loanMeta, { color: '#F57C00' }]}>Solicitante: {it.solicitadoPor}</Text>}
+                  {it.solicitadoPor && <Text style={[gs.loanMeta, { color: '#FF0055' }]}>Solicitante: {it.solicitadoPor}</Text>}
                   <View style={gs.loanActions}>
                     <StatusBadge status="solicitado" />
-                    <TouchableOpacity style={[gs.actionBtn, { backgroundColor: '#E65100' }]} onPress={() => handleConfirmarEntregaItem(it)}>
+                    <TouchableOpacity style={[gs.actionBtn, { backgroundColor: '#FF0055' }]} onPress={() => handleConfirmarEntregaItem(it)}>
                       <Ionicons name="checkmark-circle" size={11} color="#FFF" />
                       <Text style={gs.actionBtnText}>Entregar</Text>
                     </TouchableOpacity>
@@ -212,7 +213,7 @@ export default function Reservas() {
     return <GestaoEmprestimos livros={livros} itens={itens} router={router} confirmarRetirada={confirmarRetirada} confirmarDevolucao={confirmarDevolucao} confirmarRetiradaItem={confirmarRetiradaItem} />;
   }
 
-  const getDeadlineColor = (d) => d < 0 ? Colors.error : d === 0 ? '#D84315' : d <= 2 ? '#F57C00' : Colors.info;
+  const getDeadlineColor = (d) => d < 0 ? Colors.error : d === 0 ? '#FF0055' : d <= 2 ? '#FF0055' : Colors.info;
 
   const renderReserva = ({ item }) => {
     const diasRestantes = item.dataPrevistaDevolucao ? calcularDiasRestantes(item.dataPrevistaDevolucao) : null;
@@ -270,7 +271,7 @@ export default function Reservas() {
       <View style={styles.info}>
         <Text style={styles.title} numberOfLines={2}>{item.nome}</Text>
         <View style={styles.dateRow}>
-          <Ionicons name="location" size={12} color="#E65100" />
+          <Ionicons name="location" size={12} color="#FF0055" />
           <Text style={styles.meta}>{item.localEncontrado}</Text>
         </View>
         <View style={styles.dateRow}>

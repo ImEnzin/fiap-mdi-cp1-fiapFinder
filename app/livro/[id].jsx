@@ -214,7 +214,7 @@ export default function LivroDetalhe() {
               (livro.status === 'emprestado' || livro.status === 'atrasado') &&
               livro.renovacoes >= usuario?.maxRenovacoes && (
                 <View style={styles.warningBox}>
-                  <Ionicons name="alert-circle-outline" size={18} color="#F57C00" />
+                  <Ionicons name="alert-circle-outline" size={18} color="#FF0055" />
                   <Text style={styles.warningText}>Limite de renovações atingido.</Text>
                 </View>
               )}
@@ -280,10 +280,11 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 30,
   },
   cover: {
-    width: width * 0.42,
-    height: width * 0.58,
-    borderRadius: 14,
+    width: Math.min(width * 0.38, 280),
+    height: Math.min(width * 0.52, 380),
+    borderRadius: 18,
     backgroundColor: Colors.darkGray,
+    resizeMode: 'cover',
   },
   infoSection: {
     paddingHorizontal: 20,
@@ -404,7 +405,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   warningText: {
-    color: '#F57C00',
+    color: '#FF0055',
     fontWeight: '600',
     fontSize: 14,
   },

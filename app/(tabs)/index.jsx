@@ -21,9 +21,9 @@ import { calcularDiasRestantes, formatDate } from '../../utils/dateUtils';
 const { width } = Dimensions.get('window');
 
 const PERFIL_THEME = {
-  aluno: { accent: '#1976D2', bg: '#E3F2FD', icon: 'school' },
-  professor: { accent: '#7B1FA2', bg: '#F3E5F5', icon: 'briefcase' },
-  atendente: { accent: '#E65100', bg: '#FFF3E0', icon: 'shield-checkmark' },
+  aluno: { accent: '##FF0055', bg: '#E3F2FD', icon: 'school' },
+  professor: { accent: '#FF0055', bg: '#F3E5F5', icon: 'briefcase' },
+  atendente: { accent: '#FF0055', bg: '#FFF3E0', icon: 'shield-checkmark' },
 };
 
 // ========================= BARRA DE PROGRESSO =========================
@@ -104,8 +104,8 @@ function PainelAtendente({ livros, itens, router, theme }) {
       <Text style={s.sectionTitle}>Resumo Geral</Text>
       <View style={s.kpiGrid}>
         <View style={[s.kpiCard, { backgroundColor: '#111' }]}>
-          <Ionicons name="library" size={18} color="#E65100" />
-          <Text style={[s.kpiNum, { color: '#E65100' }]}>{total}</Text>
+          <Ionicons name="library" size={18} color="#FF0055" />
+          <Text style={[s.kpiNum, { color: '#FF0055' }]}>{total}</Text>
           <Text style={s.kpiLabel}>Acervo Total</Text>
         </View>
         <View style={[s.kpiCard, { backgroundColor: '#111' }]}>
@@ -125,7 +125,7 @@ function PainelAtendente({ livros, itens, router, theme }) {
       <View style={s.acervoCard}>
         <ProgressBar value={disponiveis.length} max={total} color={Colors.success} label="Disponível" />
         <ProgressBar value={emCirculacao} max={total} color={Colors.info} label="Em circulação" />
-        <ProgressBar value={reservasPendentes.length} max={total} color="#7B1FA2" label="Reservado (aguardando)" />
+        <ProgressBar value={reservasPendentes.length} max={total} color='#FF0055' label="Reservado (aguardando)" />
         <ProgressBar value={atrasados.length} max={total} color={Colors.error} label="Atrasados" />
       </View>
 
@@ -134,10 +134,10 @@ function PainelAtendente({ livros, itens, router, theme }) {
       <View style={s.alertGrid}>
         {[
           { n: atrasados.length, label: 'Livros\nAtrasados', icon: 'alert-circle', color: Colors.error, bg: '#FFEBEE' },
-          { n: vencendoEm3.length, label: 'Vencendo\nem 3 dias', icon: 'warning', color: '#F57C00', bg: '#FFF3E0' },
-          { n: reservasPendentes.length, label: 'Reservas\nPendentes', icon: 'bookmark', color: '#7B1FA2', bg: '#F3E5F5' },
+          { n: vencendoEm3.length, label: 'Vencendo\nem 3 dias', icon: 'warning', color: '#FF0055', bg: '#FFF3E0' },
+          { n: reservasPendentes.length, label: 'Reservas\nPendentes', icon: 'bookmark', color: '#FF0055', bg: '#F3E5F5' },
           { n: itensSolicitados.length, label: 'Itens p/\nEntregar', icon: 'cube', color: Colors.info, bg: '#E3F2FD' },
-        ].map((a, i) => (
+    ].map((a, i) => (
           <View key={i} style={[s.alertBox, { backgroundColor: a.bg }]}>
             <View style={[s.alertIconBox, { backgroundColor: a.color }]}>
               <Ionicons name={a.icon} size={18} color="#FFF" />
@@ -151,15 +151,15 @@ function PainelAtendente({ livros, itens, router, theme }) {
       {/* ── AÇÕES RÁPIDAS ── */}
       <Text style={s.sectionTitle}>Ações Rápidas</Text>
       <View style={s.actionsRow}>
-        <TouchableOpacity style={[s.actionBtn, { backgroundColor: '#E65100' }]} onPress={() => router.push('/biblioteca')}>
+        <TouchableOpacity style={[s.actionBtn, { backgroundColor: '#FF0055' }]} onPress={() => router.push('/biblioteca')}>
           <Ionicons name="library" size={20} color="#FFF" />
           <Text style={s.actionText}>Gestão{'\n'}Acervo</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[s.actionBtn, { backgroundColor: '#C62828' }]} onPress={() => router.push('/reservas')}>
+        <TouchableOpacity style={[s.actionBtn, { backgroundColor: '##FF0055' }]} onPress={() => router.push('/reservas')}>
           <Ionicons name="swap-horizontal" size={20} color="#FFF" />
           <Text style={s.actionText}>Todos{'\n'}Empréstimos</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[s.actionBtn, { backgroundColor: '#1565C0' }]} onPress={() => router.push('/achados')}>
+        <TouchableOpacity style={[s.actionBtn, { backgroundColor: '##FF0055' }]} onPress={() => router.push('/achados')}>
           <Ionicons name="cube" size={20} color="#FFF" />
           <Text style={s.actionText}>Gestão{'\n'}Itens</Text>
         </TouchableOpacity>
@@ -184,7 +184,7 @@ function PainelAtendente({ livros, itens, router, theme }) {
                   <View style={s.userChips}>
                     {livrosUser.map((l) => {
                       const d = l.dataPrevistaDevolucao ? calcularDiasRestantes(l.dataPrevistaDevolucao) : null;
-                      const chipColor = l.status === 'atrasado' ? Colors.error : l.status === 'reservado' ? '#7B1FA2' : d !== null && d <= 3 ? '#F57C00' : Colors.info;
+                      const chipColor = l.status === 'atrasado' ? Colors.error : l.status === 'reservado' ? '#FF0055' : d !== null && d <= 3 ? '##FF0055' : Colors.info;
                       return (
                         <TouchableOpacity key={l.id} style={[s.userChip, { backgroundColor: chipColor + '18', borderColor: chipColor }]} onPress={() => router.push(`/livro/${l.id}`)}>
                           <Text style={[s.userChipText, { color: chipColor }]} numberOfLines={1}>{l.titulo.substring(0, 18)}</Text>
@@ -242,7 +242,7 @@ function PainelAtendente({ livros, itens, router, theme }) {
         <>
           <Text style={[s.sectionTitle, { marginTop: 12 }]}>Aguardando Retirada</Text>
           {reservasPendentes.map((l) => (
-            <TouchableOpacity key={l.id} style={[s.gestaoCard, { backgroundColor: '#F3E5F5', borderLeftColor: '#7B1FA2' }]} onPress={() => router.push(`/livro/${l.id}`)}>
+            <TouchableOpacity key={l.id} style={[s.gestaoCard, { backgroundColor: '#F3E5F5', borderLeftColor: '#FF0055' }]} onPress={() => router.push(`/livro/${l.id}`)}>
               <Image source={{ uri: l.capa }} style={s.gestaoImg} />
               <View style={s.gestaoInfo}>
                 <Text style={s.gestaoTitle} numberOfLines={1}>{l.titulo}</Text>
@@ -251,7 +251,7 @@ function PainelAtendente({ livros, itens, router, theme }) {
                   <Text style={s.gestaoMetaText}>{l.reservadoPor}</Text>
                 </View>
               </View>
-              <View style={[s.gestaoBadge, { backgroundColor: '#7B1FA2' }]}>
+              <View style={[s.gestaoBadge, { backgroundColor: '#FF0055' }]}>
                 <Text style={s.gestaoBadgeText}>Retirar</Text>
               </View>
             </TouchableOpacity>
@@ -289,7 +289,7 @@ function PainelAtendente({ livros, itens, router, theme }) {
       <Text style={[s.sectionTitle, { marginTop: 12 }]}>Achados e Perdidos</Text>
       <View style={s.acervoCard}>
         <ProgressBar value={itensEncontrados.length} max={itens.length} color={Colors.info} label="Aguardando dono" />
-        <ProgressBar value={itensSolicitados.length} max={itens.length} color="#F57C00" label="Solicitados" />
+        <ProgressBar value={itensSolicitados.length} max={itens.length} color="#FF0055" label="Solicitados" />
         <ProgressBar value={itensRetirados.length} max={itens.length} color={Colors.success} label="Entregues" />
       </View>
 
@@ -483,17 +483,18 @@ export default function Home() {
 }
 
 const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F6F6F6' },
-  loadingBg: { flex: 1, backgroundColor: '#F6F6F6' },
+  container: { flex: 1, backgroundColor: Colors.black },
+  loadingBg: { flex: 1, backgroundColor: Colors.black },
   header: {
-    backgroundColor: '#111', paddingTop: 52, paddingBottom: 18, paddingHorizontal: 20,
+    backgroundColor: Colors.black, paddingTop: 52, paddingBottom: 24, paddingHorizontal: 20,
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    borderBottomLeftRadius: 24, borderBottomRightRadius: 24, borderBottomWidth: 3,
+    borderBottomLeftRadius: 28, borderBottomRightRadius: 28, borderBottomWidth: 4,
+    borderBottomColor: Colors.primary,
   },
   greeting: { color: '#FFF', fontSize: 20, fontWeight: '800' },
   subtitle: { color: '#888', fontSize: 12, marginTop: 2 },
   avatarBtn: { width: 42, height: 42, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
-  scroll: { paddingHorizontal: 16, paddingTop: 16 },
+  scroll: { paddingHorizontal: 20, paddingTop: 20 },
 
   // Role badge
   roleBadge: {
@@ -588,7 +589,7 @@ const s = StyleSheet.create({
   // Alert
   alertCard: { flexDirection: 'row', alignItems: 'center', borderRadius: 16, padding: 14, marginBottom: 16 },
   alertDanger: { backgroundColor: Colors.error },
-  alertWarn: { backgroundColor: '#F57C00' },
+  alertWarn: { backgroundColor: '##FF0055' },
   alertOk: { backgroundColor: Colors.info },
   alertTitle: { color: '#FFF', fontSize: 14, fontWeight: '700' },
   alertSub: { color: 'rgba(255,255,255,0.75)', fontSize: 12, marginTop: 2 },
