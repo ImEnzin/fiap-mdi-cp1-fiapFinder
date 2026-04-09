@@ -7,9 +7,9 @@ import StatusBadge from './StatusBadge';
 import { formatDate } from '../utils/dateUtils';
 
 const CAT_COLORS = {
-  encontrado: { bg: '#E3F2FD', border: '#1976D2' },
-  solicitado: { bg: '#FFF3E0', border: '#F57C00' },
-  retirado: { bg: '#E8F5E9', border: '#28A745' },
+  encontrado: { border: Colors.info },
+  solicitado: { border: Colors.primary },
+  retirado: { border: Colors.success },
 };
 
 export default function LostItemCard({ item }) {
@@ -27,51 +27,52 @@ export default function LostItemCard({ item }) {
       </View>
       <View style={styles.info}>
         <Text style={styles.name} numberOfLines={1}>{item.nome}</Text>
+        
         <View style={styles.row}>
-          <Ionicons name="location" size={13} color="#E65100" />
+          <Ionicons name="location" size={13} color={Colors.primary} />
           <Text style={styles.location} numberOfLines={1}>{item.localEncontrado}</Text>
         </View>
+        
         <View style={styles.row}>
-          <Ionicons name="calendar" size={13} color="#999" />
+          <Ionicons name="calendar" size={13} color="#888" />
           <Text style={styles.date}>{formatDate(item.dataEncontrado)}</Text>
         </View>
+        
         <View style={styles.row}>
-          <Ionicons name="folder" size={13} color="#999" />
+          <Ionicons name="folder" size={13} color="#888" />
           <Text style={styles.catText}>{item.categoria}</Text>
         </View>
-        <StatusBadge status={item.status} />
+
+        <View style={{ marginTop: 4, alignSelf: 'flex-start' }}>
+          <StatusBadge status={item.status} />
+        </View>
       </View>
+      <Ionicons name="chevron-forward" size={18} color={Colors.darkGray} />
     </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: Colors.white,
+    backgroundColor: Colors.darkGray, 
     borderRadius: 18,
     flexDirection: 'row',
-    padding: 10,
+    padding: 12,
     marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.08,
-    shadowRadius: 10,
-    elevation: 4,
     borderLeftWidth: 4,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.05)', 
+    alignItems: 'center'
   },
   imgWrap: {
     borderRadius: 14,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.12,
-    shadowRadius: 5,
-    elevation: 2,
+    backgroundColor: '#333',
   },
   image: {
     width: 80,
     height: 80,
-    backgroundColor: Colors.lightGray,
+    backgroundColor: '#222',
   },
   info: {
     flex: 1,
@@ -80,9 +81,9 @@ const styles = StyleSheet.create({
     gap: 3,
   },
   name: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: '800',
-    color: '#111',
+    color: Colors.white, 
     letterSpacing: -0.2,
   },
   row: {
@@ -92,15 +93,15 @@ const styles = StyleSheet.create({
   },
   location: {
     fontSize: 12,
-    color: '#666',
+    color: '#AAA', 
     flex: 1,
   },
   date: {
     fontSize: 12,
-    color: '#999',
+    color: '#777',
   },
   catText: {
     fontSize: 12,
-    color: '#999',
+    color: '#777',
   },
 });

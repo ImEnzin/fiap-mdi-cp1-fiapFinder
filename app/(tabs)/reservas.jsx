@@ -10,10 +10,12 @@ import { useLivros } from '../../context/LivrosContext';
 import { useItens } from '../../context/ItensContext';
 import { calcularDiasRestantes, formatDate } from '../../utils/dateUtils';
 
+const { width } = Dimensions.get('window');
+
 const PERFIL_THEME = {
-  aluno: { accent: '#FF0055', bg: '#E3F2FD', icon: 'school' },
-  professor: { accent: '#FF0055', bg: '#F3E5F5', icon: 'briefcase' },
-  atendente: { accent: '#FF0055', bg: '#FFF3E0', icon: 'shield-checkmark' },
+  aluno: { accent: Colors.primary, bg: '#3D1A25', icon: 'school' },
+  professor: { accent: Colors.primary, bg: '#3D1A25', icon: 'briefcase' },
+  atendente: { accent: Colors.primary, bg: '#3D1A25', icon: 'shield-checkmark' },
 };
 
 // ========================= GESTÃO DE EMPRÉSTIMOS (ATENDENTE) =========================
@@ -25,16 +27,6 @@ function GestaoEmprestimos({ livros, itens, router, confirmarRetirada, confirmar
 
   const todosAtivos = [...atrasados, ...emprestados, ...reservados];
 
-  // Sort by urgency: atrasados first (most overdue first), then by days remaining
-  const todosOrdenados = todosAtivos.sort((a, b) => {
-    const da = a.dataPrevistaDevolucao ? calcularDiasRestantes(a.dataPrevistaDevolucao) : 999;
-    const db = b.dataPrevistaDevolucao ? calcularDiasRestantes(b.dataPrevistaDevolucao) : 999;
-    if (a.status === 'reservado' && b.status !== 'reservado') return 1;
-    if (a.status !== 'reservado' && b.status === 'reservado') return -1;
-    return da - db;
-  });
-
-  // Group by user
   const porUsuario = {};
   todosAtivos.forEach((l) => {
     const email = l.reservadoPor || 'Desconhecido';
@@ -42,246 +34,83 @@ function GestaoEmprestimos({ livros, itens, router, confirmarRetirada, confirmar
     porUsuario[email].push(l);
   });
 
-  const getColor = (d) => d < 0 ? Colors.error : d === 0 ? '#FF0055' : d <= 3 ? '#FF0055' : d <= 5 ? '#FF0055' : Colors.success;
-  const getBg = (d) => d < 0 ? '#FFEBEE' : d === 0 ? '#FBE9E7' : d <= 3 ? '#FFF3E0' : d <= 5 ? '#FFF8E1' : '#F5F5F5';
-
-  const handleConfirmarRetirada = (livro) => {
-    Alert.alert('Confirmar Retirada', `Confirmar retirada de "${livro.titulo}" por ${livro.reservadoPor}?`, [
-      { text: 'Cancelar', style: 'cancel' },
-      { text: 'Confirmar', onPress: () => confirmarRetirada(livro.id) },
-    ]);
-  };
-
-  const handleConfirmarDevolucao = (livro) => {
-    Alert.alert('Confirmar Devolução', `Confirmar devolução de "${livro.titulo}"?`, [
-      { text: 'Cancelar', style: 'cancel' },
-      { text: 'Confirmar', onPress: () => confirmarDevolucao(livro.id) },
-    ]);
-  };
-
-  const handleConfirmarEntregaItem = (item) => {
-    Alert.alert('Confirmar Entrega', `Entregar "${item.nome}" para ${item.solicitadoPor}?`, [
-      { text: 'Cancelar', style: 'cancel' },
-      { text: 'Confirmar', onPress: () => confirmarRetiradaItem(item.id) },
-    ]);
-  };
+  const getColor = (d) => d < 0 ? Colors.error : d === 0 ? Colors.primary : d <= 3 ? Colors.primary : Colors.success;
+  const getBg = (d) => d < 0 ? '#2D1A1A' : d === 0 ? '#2D1F1A' : d <= 3 ? '#2D1A25' : '#1A2D1A';
 
   return (
     <View style={styles.container}>
-      <View style={[styles.header, { borderBottomColor: '#FF0055' }]}>
+      <View style={[styles.header, { borderBottomColor: Colors.primary }]}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-          <Ionicons name="swap-horizontal" size={22} color="#FF0055" />
+          <Ionicons name="swap-horizontal" size={22} color={Colors.primary} />
           <Text style={styles.headerTitle}>Gestão de Empréstimos</Text>
         </View>
-        <Text style={styles.headerSub}>{todosAtivos.length} ativo(s) • {atrasados.length} atrasados • {itensSolicitados.length} itens p/ entregar</Text>
+        <Text style={styles.headerSub}>{todosAtivos.length} ativo(s) • {atrasados.length} atrasados</Text>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-        {/* KPI bar */}
         <View style={gs.kpiRow}>
-          <View style={[gs.kpi, { backgroundColor: '#FFEBEE' }]}>
+          <View style={[gs.kpi, { backgroundColor: '#2D1A1A' }]}>
             <Text style={[gs.kpiNum, { color: Colors.error }]}>{atrasados.length}</Text>
             <Text style={gs.kpiLabel}>Atrasados</Text>
           </View>
-          <View style={[gs.kpi, { backgroundColor: '#E3F2FD' }]}>
+          <View style={[gs.kpi, { backgroundColor: '#1A233A' }]}>
             <Text style={[gs.kpiNum, { color: Colors.info }]}>{emprestados.length}</Text>
             <Text style={gs.kpiLabel}>Emprestados</Text>
           </View>
-          <View style={[gs.kpi, { backgroundColor: '#F3E5F5' }]}>
-            <Text style={[gs.kpiNum, { color: '##FF0055' }]}>{reservados.length}</Text>
+          <View style={[gs.kpi, { backgroundColor: '#2D1A25' }]}>
+            <Text style={[gs.kpiNum, { color: Colors.primary }]}>{reservados.length}</Text>
             <Text style={gs.kpiLabel}>Reservados</Text>
-          </View>
-          <View style={[gs.kpi, { backgroundColor: '#FFF3E0' }]}>
-            <Text style={[gs.kpiNum, { color: '#FF0055' }]}>{itensSolicitados.length}</Text>
-            <Text style={gs.kpiLabel}>Itens</Text>
           </View>
         </View>
 
-        {/* Urgent banner */}
-        {atrasados.length > 0 && (
-          <View style={gs.urgentBar}>
-            <Ionicons name="alert-circle" size={16} color="#FFF" />
-            <Text style={gs.urgentBarText}>{atrasados.length} livro(s) com atraso — prioridade máxima!</Text>
-          </View>
-        )}
-
-        {/* === POR USUÁRIO === */}
         <Text style={gs.sectionTitle}>Por Usuário</Text>
-        {Object.entries(porUsuario).map(([email, userLivros]) => {
-          const temAtraso = userLivros.some((l) => l.status === 'atrasado');
-          const nomeDisplay = email.split('@')[0];
-          return (
-            <View key={email} style={[gs.userSection, temAtraso && { borderLeftColor: Colors.error }]}>
-              <View style={gs.userHeader}>
-                <View style={[gs.userAvatar, { backgroundColor: temAtraso ? '#FFCDD2' : '#E3F2FD' }]}>
-                  <Ionicons name={temAtraso ? 'alert' : 'person'} size={14} color={temAtraso ? Colors.error : Colors.info} />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={gs.userName}>{nomeDisplay}</Text>
-                  <Text style={gs.userEmail}>{email}</Text>
-                </View>
-                <View style={[gs.countBadge, { backgroundColor: temAtraso ? Colors.error : '#FF0055' }]}>
-                  <Text style={gs.countBadgeText}>{userLivros.length}</Text>
-                </View>
+        {Object.entries(porUsuario).map(([email, userLivros]) => (
+          <View key={email} style={gs.userSection}>
+            <View style={gs.userHeader}>
+              <View style={gs.userAvatar}>
+                <Ionicons name="person" size={14} color={Colors.primary} />
               </View>
-              {userLivros.map((l) => {
-                const d = l.dataPrevistaDevolucao ? calcularDiasRestantes(l.dataPrevistaDevolucao) : null;
-                const c = d !== null ? getColor(d) : (l.status === 'reservado' ? '#FF0055' : '#999');
-                const bg = d !== null ? getBg(d) : (l.status === 'reservado' ? '#F3E5F5' : '#F5F5F5');
-                return (
-                  <TouchableOpacity key={l.id} style={[gs.loanCard, { backgroundColor: bg, borderLeftColor: c }]} onPress={() => router.push(`/livro/${l.id}`)}>
-                    <Image source={{ uri: l.capa }} style={gs.loanImg} />
-                    <View style={gs.loanInfo}>
-                      <Text style={gs.loanTitle} numberOfLines={1}>{l.titulo}</Text>
-                      {l.dataPrevistaDevolucao && (
-                        <Text style={[gs.loanMeta, { color: c }]}>
-                          {d < 0 ? `${Math.abs(d)}d atraso` : d === 0 ? 'VENCE HOJE' : `${d}d restante(s)`} • {formatDate(l.dataPrevistaDevolucao)}
-                        </Text>
-                      )}
-                      {l.status === 'reservado' && <Text style={[gs.loanMeta, { color: '#FF0055' }]}>Aguardando retirada</Text>}
-                      {l.status === 'reservado' && <Text style={[gs.loanMeta, { color: '#FF0055' }]}>Aguardando retirada</Text>}
-                      <View style={gs.loanActions}>
-                        <StatusBadge status={l.status} />
-                        {l.status === 'reservado' && (
-                          <TouchableOpacity style={[gs.actionBtn, { backgroundColor: '#FF0055' }]} onPress={() => handleConfirmarRetirada(l)}>
-                            <Ionicons name="log-out" size={11} color="#FFF" />
-                            <Text style={gs.actionBtnText}>Entregar</Text>
-                          </TouchableOpacity>
-                        )}
-                        {(l.status === 'emprestado' || l.status === 'atrasado') && (
-                          <TouchableOpacity style={[gs.actionBtn, { backgroundColor: Colors.success }]} onPress={() => handleConfirmarDevolucao(l)}>
-                            <Ionicons name="log-in" size={11} color="#FFF" />
-                            <Text style={gs.actionBtnText}>Devolver</Text>
-                          </TouchableOpacity>
-                        )}
-                      </View>
-                    </View>
-                  </TouchableOpacity>
-                );
-              })}
+              <View style={{ flex: 1 }}>
+                <Text style={gs.userName}>{email.split('@')[0]}</Text>
+                <Text style={gs.userEmail}>{email}</Text>
+              </View>
             </View>
-          );
-        })}
-
-        {todosAtivos.length === 0 && (
-          <View style={gs.emptyBox}>
-            <Ionicons name="checkmark-circle" size={36} color={Colors.success} />
-            <Text style={gs.emptyText}>Nenhum empréstimo ou reserva ativa!</Text>
-          </View>
-        )}
-
-        {/* === ITENS SOLICITADOS === */}
-        {itensSolicitados.length > 0 && (
-          <>
-            <Text style={[gs.sectionTitle, { marginTop: 16 }]}>Itens Aguardando Entrega</Text>
-            {itensSolicitados.map((it) => (
-              <TouchableOpacity key={it.id} style={[gs.loanCard, { backgroundColor: '#FFF3E0', borderLeftColor: '#FF0055' }]} onPress={() => router.push(`/item/${it.id}`)}>
-                <Image source={{ uri: it.imagem }} style={[gs.loanImg, { borderRadius: 10 }]} />
-                <View style={gs.loanInfo}>
-                  <Text style={gs.loanTitle} numberOfLines={1}>{it.nome}</Text>
-                  <Text style={gs.loanMeta}>{it.localEncontrado}</Text>
-                  {it.solicitadoPor && <Text style={[gs.loanMeta, { color: '#FF0055' }]}>Solicitante: {it.solicitadoPor}</Text>}
-                  <View style={gs.loanActions}>
-                    <StatusBadge status="solicitado" />
-                    <TouchableOpacity style={[gs.actionBtn, { backgroundColor: '#FF0055' }]} onPress={() => handleConfirmarEntregaItem(it)}>
-                      <Ionicons name="checkmark-circle" size={11} color="#FFF" />
-                      <Text style={gs.actionBtnText}>Entregar</Text>
-                    </TouchableOpacity>
+            {userLivros.map((l) => {
+              const d = l.dataPrevistaDevolucao ? calcularDiasRestantes(l.dataPrevistaDevolucao) : null;
+              const c = d !== null ? getColor(d) : Colors.primary;
+              return (
+                <View key={l.id} style={[gs.loanCard, { borderLeftColor: c }]}>
+                  <View style={gs.loanInfo}>
+                    <Text style={gs.loanTitle}>{l.titulo}</Text>
+                    <StatusBadge status={l.status} />
                   </View>
+                  <TouchableOpacity 
+                    style={[gs.actionBtn, { backgroundColor: l.status === 'reservado' ? Colors.primary : Colors.success }]}
+                    onPress={() => l.status === 'reservado' ? confirmarRetirada(l.id) : confirmarDevolucao(l.id)}
+                  >
+                    <Text style={gs.actionBtnText}>{l.status === 'reservado' ? 'Entregar' : 'Devolver'}</Text>
+                  </TouchableOpacity>
                 </View>
-              </TouchableOpacity>
-            ))}
-          </>
-        )}
-
-        <View style={{ height: 30 }} />
+              );
+            })}
+          </View>
+        ))}
       </ScrollView>
     </View>
   );
 }
 
-// ========================= RESERVAS (ALUNO/PROFESSOR) =========================
+// ========================= RESERVAS (ALUNO) =========================
 export default function Reservas() {
   const router = useRouter();
   const { usuario } = useAuth();
   const { livros, meusLivros, confirmarRetirada, confirmarDevolucao } = useLivros();
   const { itens, meusSolicitados, confirmarRetiradaItem } = useItens();
   const theme = PERFIL_THEME[usuario?.perfil] || PERFIL_THEME.aluno;
-  const isAtendente = usuario?.perfil === 'atendente';
 
-  if (isAtendente) {
+  if (usuario?.perfil === 'atendente') {
     return <GestaoEmprestimos livros={livros} itens={itens} router={router} confirmarRetirada={confirmarRetirada} confirmarDevolucao={confirmarDevolucao} confirmarRetiradaItem={confirmarRetiradaItem} />;
   }
-
-  const getDeadlineColor = (d) => d < 0 ? Colors.error : d === 0 ? '#FF0055' : d <= 2 ? '#FF0055' : Colors.info;
-
-  const renderReserva = ({ item }) => {
-    const diasRestantes = item.dataPrevistaDevolucao ? calcularDiasRestantes(item.dataPrevistaDevolucao) : null;
-    const dlColor = diasRestantes !== null ? getDeadlineColor(diasRestantes) : '#999';
-
-    return (
-      <TouchableOpacity style={styles.card} onPress={() => router.push(`/livro/${item.id}`)} activeOpacity={0.85}>
-        <View style={styles.coverWrap}>
-          <Image source={{ uri: item.capa }} style={styles.cover} />
-        </View>
-        <View style={styles.info}>
-          <Text style={styles.title} numberOfLines={2}>{item.titulo}</Text>
-          <Text style={styles.meta}>{item.autor}</Text>
-
-          {item.status === 'reservado' && (
-            <View style={styles.dateRow}>
-              <Ionicons name="bookmark" size={12} color={theme.accent} />
-              <Text style={[styles.dateText, { color: theme.accent }]}>Reservado {formatDate(item.dataReserva)}</Text>
-            </View>
-          )}
-          {(item.status === 'emprestado' || item.status === 'atrasado') && (
-            <>
-              <View style={styles.dateRow}>
-                <Ionicons name="calendar" size={12} color="#999" />
-                <Text style={styles.dateText}>Devolver: {formatDate(item.dataPrevistaDevolucao)}</Text>
-              </View>
-              <View style={[styles.deadlineBadge, { backgroundColor: dlColor }]}>
-                <Ionicons name={diasRestantes < 0 ? 'alert-circle' : 'time'} size={12} color="#FFF" />
-                <Text style={styles.deadlineText}>
-                  {diasRestantes < 0 ? `${Math.abs(diasRestantes)}d atrasado` : diasRestantes === 0 ? 'VENCE HOJE' : `${diasRestantes}d restante(s)`}
-                </Text>
-              </View>
-            </>
-          )}
-
-          <View style={styles.badgeRow}>
-            <StatusBadge status={item.status} />
-            {item.renovacoes > 0 && (
-              <View style={styles.renewBadge}>
-                <Ionicons name="refresh" size={10} color={Colors.success} />
-                <Text style={styles.renewText}>{item.renovacoes}x</Text>
-              </View>
-            )}
-          </View>
-        </View>
-      </TouchableOpacity>
-    );
-  };
-
-  const renderSolicitacao = ({ item }) => (
-    <TouchableOpacity style={styles.card} onPress={() => router.push(`/item/${item.id}`)} activeOpacity={0.85}>
-      <View style={styles.imgWrap}>
-        <Image source={{ uri: item.imagem }} style={styles.itemImg} />
-      </View>
-      <View style={styles.info}>
-        <Text style={styles.title} numberOfLines={2}>{item.nome}</Text>
-        <View style={styles.dateRow}>
-          <Ionicons name="location" size={12} color="#FF0055" />
-          <Text style={styles.meta}>{item.localEncontrado}</Text>
-        </View>
-        <View style={styles.dateRow}>
-          <Ionicons name="calendar" size={12} color="#999" />
-          <Text style={styles.dateText}>Solicitado {formatDate(item.dataSolicitacao)}</Text>
-        </View>
-        <StatusBadge status="solicitado" />
-      </View>
-    </TouchableOpacity>
-  );
 
   return (
     <View style={styles.container}>
@@ -290,145 +119,78 @@ export default function Reservas() {
         <Text style={styles.headerSub}>{meusLivros.length + meusSolicitados.length} ativo(s)</Text>
       </View>
 
-      <FlatList
-        data={[]}
-        renderItem={() => null}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-        ListHeaderComponent={
-          <>
-            <View style={[styles.limitCard, { backgroundColor: theme.bg, borderLeftColor: theme.accent }]}>
-              <Ionicons name="information-circle" size={22} color={theme.accent} />
-              <View style={{ flex: 1, marginLeft: 10 }}>
-                <Text style={[styles.limitTitle, { color: theme.accent }]}>Limites do Perfil</Text>
-                <Text style={styles.limitText}>
-                  {meusLivros.length}/{usuario?.maxLivros} livros • {usuario?.maxRenovacoes} renovação(ões) • {usuario?.prazoDias} dias
-                </Text>
-              </View>
-            </View>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <View style={[styles.limitCard, { backgroundColor: theme.bg }]}>
+          <Ionicons name="information-circle" size={22} color={theme.accent} />
+          <View style={{ flex: 1, marginLeft: 10 }}>
+            <Text style={[styles.limitTitle, { color: theme.accent }]}>Limites do Perfil</Text>
+            <Text style={styles.limitText}>{meusLivros.length}/{usuario?.maxLivros} livros • {usuario?.prazoDias} dias de prazo</Text>
+          </View>
+        </View>
 
-            <View style={styles.progressWrap}>
-              <View style={styles.progressBg}>
-                <View style={[styles.progressBar, { width: `${(meusLivros.length / (usuario?.maxLivros || 1)) * 100}%`, backgroundColor: theme.accent }]} />
+        <Text style={styles.sectionTitle}>Livros</Text>
+        {meusLivros.length === 0 ? <EmptyState icon="bookmark-outline" message="Nenhuma reserva." /> : 
+          meusLivros.map(item => (
+            <TouchableOpacity key={item.id} style={styles.card} onPress={() => router.push(`/livro/${item.id}`)}>
+              <Image source={{ uri: item.capa }} style={styles.cover} />
+              <View style={styles.info}>
+                <Text style={styles.title}>{item.titulo}</Text>
+                <StatusBadge status={item.status} />
+                <Text style={styles.dateText}>Prazo: {formatDate(item.dataPrevistaDevolucao)}</Text>
               </View>
-              <Text style={styles.progressText}>{meusLivros.length} de {usuario?.maxLivros} livros</Text>
-            </View>
-
-            <View style={styles.sectionRow}>
-              <Ionicons name="book" size={18} color={theme.accent} />
-              <Text style={styles.sectionTitle}>Livros</Text>
-            </View>
-            {meusLivros.length === 0 ? (
-              <View style={styles.emptySection}>
-                <EmptyState icon="bookmark-outline" message="Nenhuma reserva ativa." />
-              </View>
-            ) : (
-              <FlatList data={meusLivros} keyExtractor={(item) => item.id} renderItem={renderReserva} scrollEnabled={false} />
-            )}
-
-            <View style={[styles.sectionRow, { marginTop: 20 }]}>
-              <Ionicons name="cube" size={18} color={theme.accent} />
-              <Text style={styles.sectionTitle}>Itens Solicitados</Text>
-            </View>
-            {meusSolicitados.length === 0 ? (
-              <View style={styles.emptySection}>
-                <EmptyState icon="search-outline" message="Nenhum item solicitado." />
-              </View>
-            ) : (
-              <FlatList data={meusSolicitados} keyExtractor={(item) => item.id} renderItem={renderSolicitacao} scrollEnabled={false} />
-            )}
-          </>
+            </TouchableOpacity>
+          ))
         }
-      />
+
+        <Text style={[styles.sectionTitle, { marginTop: 20 }]}>Itens Solicitados</Text>
+        {meusSolicitados.length === 0 ? <EmptyState icon="search-outline" message="Nenhum item solicitado." /> :
+          meusSolicitados.map(item => (
+            <TouchableOpacity key={item.id} style={styles.card} onPress={() => router.push(`/item/${item.id}`)}>
+              <Image source={{ uri: item.imagem }} style={styles.itemImg} />
+              <View style={styles.info}>
+                <Text style={styles.title}>{item.nome}</Text>
+                <StatusBadge status="solicitado" />
+              </View>
+            </TouchableOpacity>
+          ))
+        }
+      </ScrollView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F6F6F6' },
-  header: {
-    backgroundColor: '#111', paddingTop: 52, paddingBottom: 18, paddingHorizontal: 20,
-    borderBottomLeftRadius: 24, borderBottomRightRadius: 24, borderBottomWidth: 3,
-  },
-  headerTitle: { color: '#FFF', fontSize: 22, fontWeight: '800' },
+  container: { flex: 1, backgroundColor: Colors.black },
+  header: { backgroundColor: Colors.black, paddingTop: 52, paddingBottom: 18, paddingHorizontal: 20, borderBottomWidth: 3 },
+  headerTitle: { color: Colors.white, fontSize: 22, fontWeight: '800' },
   headerSub: { color: '#888', fontSize: 12, marginTop: 2 },
   scrollContent: { paddingHorizontal: 16, paddingTop: 16, paddingBottom: 30 },
-  limitCard: {
-    flexDirection: 'row', alignItems: 'center', borderRadius: 16, padding: 14,
-    marginBottom: 12, borderLeftWidth: 4,
-  },
+  limitCard: { flexDirection: 'row', alignItems: 'center', borderRadius: 16, padding: 14, marginBottom: 12 },
   limitTitle: { fontSize: 13, fontWeight: '800' },
-  limitText: { fontSize: 12, color: '#666', marginTop: 2 },
-  progressWrap: { marginBottom: 18 },
-  progressBg: { height: 6, backgroundColor: '#E8E8E8', borderRadius: 3, overflow: 'hidden' },
-  progressBar: { height: '100%', borderRadius: 3 },
-  progressText: { fontSize: 11, color: '#AAA', marginTop: 4, textAlign: 'right' },
-  sectionRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 },
-  sectionTitle: { fontSize: 17, fontWeight: '800', color: '#222' },
-  emptySection: { backgroundColor: '#FFF', borderRadius: 18, paddingVertical: 20, marginBottom: 8 },
-  card: {
-    backgroundColor: '#FFF', borderRadius: 18, flexDirection: 'row', padding: 10, marginBottom: 12,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.08, shadowRadius: 10, elevation: 4,
-  },
-  coverWrap: { borderRadius: 12, overflow: 'hidden' },
-  cover: { width: 72, height: 100, backgroundColor: '#EEE' },
-  imgWrap: { borderRadius: 14, overflow: 'hidden' },
-  itemImg: { width: 72, height: 72, backgroundColor: '#EEE' },
+  limitText: { fontSize: 12, color: '#AAA', marginTop: 2 },
+  sectionTitle: { fontSize: 17, fontWeight: '800', color: Colors.white, marginBottom: 12 },
+  card: { backgroundColor: Colors.darkGray, borderRadius: 18, flexDirection: 'row', padding: 12, marginBottom: 12, borderWidth: 1, borderColor: Colors.borderGray },
+  cover: { width: 60, height: 85, borderRadius: 8, backgroundColor: '#333' },
+  itemImg: { width: 60, height: 60, borderRadius: 8, backgroundColor: '#333' },
   info: { flex: 1, marginLeft: 14, justifyContent: 'center', gap: 4 },
-  title: { fontSize: 14, fontWeight: '800', color: '#111', letterSpacing: -0.2 },
-  meta: { fontSize: 12, color: '#888' },
-  dateRow: { flexDirection: 'row', alignItems: 'center', gap: 5 },
-  dateText: { fontSize: 11, color: '#999' },
-  deadlineBadge: {
-    flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start',
-    paddingHorizontal: 10, paddingVertical: 4, borderRadius: 20,
-  },
-  deadlineText: { color: '#FFF', fontSize: 10, fontWeight: '800' },
-  badgeRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 2 },
-  renewBadge: {
-    flexDirection: 'row', alignItems: 'center', gap: 3,
-    backgroundColor: '#E8F5E9', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 12,
-  },
-  renewText: { fontSize: 11, color: Colors.success, fontWeight: '700' },
+  title: { fontSize: 14, fontWeight: '800', color: Colors.white },
+  dateText: { fontSize: 11, color: '#777' },
 });
 
-// Gestão Empréstimos styles (atendente)
 const gs = StyleSheet.create({
   kpiRow: { flexDirection: 'row', gap: 8, marginBottom: 14 },
   kpi: { flex: 1, borderRadius: 14, paddingVertical: 12, alignItems: 'center', gap: 2 },
   kpiNum: { fontSize: 20, fontWeight: '900' },
   kpiLabel: { fontSize: 9, color: '#888', fontWeight: '600' },
-  urgentBar: {
-    backgroundColor: Colors.error, borderRadius: 12, padding: 12,
-    flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 14,
-  },
-  urgentBarText: { color: '#FFF', fontSize: 13, fontWeight: '700', flex: 1 },
-  sectionTitle: { fontSize: 17, fontWeight: '800', color: '#222', marginBottom: 12 },
-  userSection: {
-    backgroundColor: '#FFF', borderRadius: 16, padding: 12, marginBottom: 12,
-    borderLeftWidth: 4, borderLeftColor: '#E0E0E0',
-    shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 2,
-  },
+  sectionTitle: { fontSize: 17, fontWeight: '800', color: Colors.white, marginBottom: 12 },
+  userSection: { backgroundColor: Colors.darkGray, borderRadius: 16, padding: 12, marginBottom: 12, borderLeftWidth: 4, borderLeftColor: Colors.borderGray },
   userHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
-  userAvatar: { width: 32, height: 32, borderRadius: 10, alignItems: 'center', justifyContent: 'center', marginRight: 8 },
-  userName: { fontSize: 13, fontWeight: '800', color: '#222' },
-  userEmail: { fontSize: 10, color: '#BBB' },
-  countBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
-  countBadgeText: { color: '#FFF', fontSize: 12, fontWeight: '800' },
-  loanCard: {
-    flexDirection: 'row', borderRadius: 12, padding: 8, marginBottom: 6,
-    borderLeftWidth: 3, alignItems: 'center',
-  },
-  loanImg: { width: 40, height: 56, borderRadius: 6, backgroundColor: '#DDD', marginRight: 8 },
-  loanInfo: { flex: 1 },
-  loanTitle: { fontSize: 12, fontWeight: '700', color: '#222' },
-  loanMeta: { fontSize: 10, color: '#999', marginTop: 1 },
-  loanActions: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 },
-  actionBtn: {
-    flexDirection: 'row', alignItems: 'center', gap: 3,
-    paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12,
-  },
-  actionBtnText: { color: '#FFF', fontSize: 10, fontWeight: '700' },
-  emptyBox: { alignItems: 'center', paddingVertical: 28, gap: 8 },
-  emptyText: { fontSize: 14, color: '#AAA', fontWeight: '600' },
+  userAvatar: { width: 32, height: 32, borderRadius: 10, backgroundColor: '#333', alignItems: 'center', justifyContent: 'center', marginRight: 8 },
+  userName: { fontSize: 13, fontWeight: '800', color: Colors.white },
+  userEmail: { fontSize: 10, color: '#666' },
+  loanCard: { flexDirection: 'row', backgroundColor: '#222', borderRadius: 12, padding: 10, marginBottom: 6, borderLeftWidth: 3, alignItems: 'center', justifyContent: 'space-between' },
+  loanInfo: { flex: 1, gap: 2 },
+  loanTitle: { fontSize: 12, fontWeight: '700', color: Colors.white },
+  actionBtn: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 10 },
+  actionBtnText: { color: '#FFF', fontSize: 10, fontWeight: '800' },
 });
