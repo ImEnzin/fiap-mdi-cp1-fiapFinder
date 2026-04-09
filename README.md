@@ -5,8 +5,8 @@ INTEGRANTES ESPF-2026:
 Enzo Dias — RM558225
 Vinicius Henrique — RM556908
 Gustavo Pierre — RM558928
-Gabriel Belo - RM551669
-Laura Souza - 556320
+Gabriel Belo — RM551669
+Laura Souza — RM556320
 
 Um aplicativo completo desenvolvido com **React Native** e **Expo** para ajudar estudantes da FIAP a encontrar livros disponíveis na biblioteca e reportar itens perdidos no campus.
 
@@ -20,6 +20,10 @@ O **FIAP Finder** é um aplicativo multiplataforma (iOS, Android e Web) que func
 - 🏷️ **Pesquisar itens encontrados** no app
 - 👤 **Gerenciar perfil** do usuário
 - 📋 **Acompanhar reservas** de livros
+
+### Operação da FIAP escolhida
+
+Escolhemos a **Biblioteca e Achados & Perdidos** da FIAP como foco do aplicativo. A motivação foi resolver duas dores reais dos alunos no dia a dia do campus: a dificuldade em consultar a disponibilidade de livros da biblioteca de forma rápida e a falta de um canal centralizado para reportar e buscar itens perdidos. Unindo essas duas funcionalidades em um único app, o estudante ganha praticidade e o campus ganha organização.
 
 ---
 
@@ -35,19 +39,17 @@ Antes de começar, você precisa ter instalado:
 
 ### Instalação Rápida
 
-⚠️ **PASSO 0: ENTRE NA PASTA DO PROJETO PRIMEIRO!**
-
 ```bash
-cd "c:\wamp64\www\cp01 mobile\fiap-finder"
-```
+# 1. Clone o repositório
+git clone https://github.com/seu-usuario/fiap-mdi-cp1-fiapFinder.git
 
-**Depois, execute os passos abaixo dentro dessa pasta:**
+# 2. Entre na pasta do projeto
+cd fiap-mdi-cp1-fiapFinder
 
-```bash
-# 1. Instale todas as dependências
+# 3. Instale todas as dependências
 npm install
 
-# 2. Instale o Expo CLI globalmente (se não tiver)
+# 4. Instale o Expo CLI globalmente (se não tiver)
 npm install -g expo-cli
 ```
 
@@ -162,7 +164,7 @@ Para ver todas as dependências, abra o arquivo [package.json](package.json).
 
 ---
 
-## 🎨 Arquitetura do App
+## 🎨 Decisões Técnicas
 
 ### Estado Global (Context API)
 
@@ -178,6 +180,23 @@ O app usa **Expo Router** para:
 - **Navegação em abas** (Home, Biblioteca, Achados, Reservas, Perfil)
 - **Stack navigation** para detalhes de livros e itens
 - **Deep linking** (links profundos para compartilhar)
+
+### Hooks Utilizados
+
+| Hook | Onde é usado | Para quê |
+|---|---|---|
+| `useState` | Todas as telas e contextos | Gerenciar estados locais (busca, loading, feedback, dados do formulário de login, modais) |
+| `useEffect` | Telas e `LivrosContext` | Simular carregamento inicial, verificar livros atrasados com intervalo automático (60s) |
+| `useRef` | `login.jsx` | Criar referências para animações (fade-in e slide-up com `Animated.Value`) |
+| `useContext` | Contextos (via hooks customizados) | Acessar os contextos globais de autenticação, livros e itens |
+| `useRouter` | Telas, `BookCard`, `LostItemCard`, `Header` | Navegar entre telas (detalhes de livros/itens, login/logout, voltar) |
+| `useLocalSearchParams` | `livro/[id].jsx`, `item/[id].jsx` | Extrair o parâmetro `id` da URL para carregar detalhes do livro/item |
+| `createContext` | Todos os contextos | Criar os contextos globais (`AuthContext`, `LivrosContext`, `ItensContext`) |
+
+**Hooks customizados criados:**
+- `useAuth()` — acessa dados do usuário logado e funções `login`/`logout`
+- `useLivros()` — acessa lista de livros e funções de reserva, retirada, devolução e renovação
+- `useItens()` — acessa itens perdidos/encontrados e funções de solicitação e retirada
 
 ### Componentes Principais
 
@@ -370,5 +389,45 @@ Se tiver dúvidas sobre o projeto, verifique:
 2. Os comentários no código
 3. A documentação oficial do Expo
 4. Os exemplos em `/data` para entender a estrutura
+
+---
+
+## 📸 Demonstração
+
+### Prints das Telas
+
+| Tela | Screenshot |
+|---|---|
+| Login | ![Login](assets/screenshots/login.png) |
+| Home | ![Home](assets/screenshots/home.png) |
+| Biblioteca | ![Biblioteca](assets/screenshots/biblioteca.png) |
+| Detalhes do Livro | ![Detalhes Livro](assets/screenshots/livro-detalhe.png) |
+| Achados e Perdidos | ![Achados](assets/screenshots/achados.png) |
+| Detalhes do Item | ![Detalhes Item](assets/screenshots/item-detalhe.png) |
+| Reservas | ![Reservas](assets/screenshots/reservas.png) |
+| Perfil | ![Perfil](assets/screenshots/perfil.png) |
+
+> ⚠️ **TODO:** Tire os screenshots do app rodando e salve em `assets/screenshots/`.
+
+### Vídeo / GIF do Fluxo Principal
+
+> ⚠️ **TODO:** Grave um GIF ou vídeo demonstrando o fluxo principal do app (login → home → buscar livro → reservar → ver reservas) e insira o link abaixo.
+
+🎬 [Clique aqui para ver o vídeo de demonstração](URL_DO_VIDEO_AQUI)
+
+---
+
+## 🔮 Próximos Passos
+
+Com mais tempo, o grupo implementaria:
+
+- 🔗 **Integração com API real** — conectar a um backend para persistir dados de livros, itens e usuários
+- 🔔 **Notificações push** — avisar quando um livro reservado estiver disponível ou um item perdido for encontrado
+- 📷 **Upload de fotos** — permitir enviar fotos dos itens perdidos diretamente pelo app
+- 🗺️ **Mapa do campus** — mostrar no mapa onde o item foi encontrado
+- 🔐 **Autenticação real** — integrar com login FIAP (SSO) para validar credenciais dos alunos
+- 📊 **Dashboard administrativo** — painel para funcionários gerenciarem estoque da biblioteca
+
+---
 
 **Bom desenvolvimento! 🚀**
