@@ -2,11 +2,11 @@
 
 INTEGRANTES ESPF-2026: 
 
-Enzo Dias — RM558225
-Vinicius Henrique — RM556908
-Gustavo Pierre — RM558928
-Gabriel Belo — RM551669
-Laura Souza — RM556320
+- Enzo Dias — RM558225
+- Vinicius Henrique — RM556908
+- Gustavo Pierre — RM558928
+- Gabriel Belo — RM551669
+- Laura Souza — RM556320
 
 Um aplicativo completo desenvolvido com **React Native** e **Expo** para ajudar estudantes da FIAP a encontrar livros disponíveis na biblioteca e reportar itens perdidos no campus.
 
