@@ -398,14 +398,14 @@ Se tiver dúvidas sobre o projeto, verifique:
 
 | Tela | Screenshot |
 |---|---|
-| Login | ![Login](assets/screenshots/login.png) |
-| Home | ![Home](assets/screenshots/home.png) |
-| Biblioteca | ![Biblioteca](assets/screenshots/biblioteca.png) |
-| Detalhes do Livro | ![Detalhes Livro](assets/screenshots/livro-detalhe.png) |
-| Achados e Perdidos | ![Achados](assets/screenshots/achados.png) |
-| Detalhes do Item | ![Detalhes Item](assets/screenshots/item-detalhe.png) |
-| Reservas | ![Reservas](assets/screenshots/reservas.png) |
-| Perfil | ![Perfil](assets/screenshots/perfil.png) |
+| Login | ![Login](assets/login.jpeg) |
+| Home | ![Home](assets/home.jpeg) |
+| Biblioteca | ![Biblioteca](assets/biblioteca.jpeg) |
+| Detalhes do Livro | ![Detalhes Livro](assets/livro-detalhe.jpeg) |
+| Achados e Perdidos | ![Achados](assets/achados.jpeg) |
+| Detalhes do Item | ![Detalhes Item](assets/item-detalhe.jpeg) |
+| Reservas | ![Reservas](assets/reservas.jpeg) |
+| Perfil | ![Perfil](assets/perfil.jpeg) |
 
 > ⚠️ **TODO:** Tire os screenshots do app rodando e salve em `assets/screenshots/`.
 
