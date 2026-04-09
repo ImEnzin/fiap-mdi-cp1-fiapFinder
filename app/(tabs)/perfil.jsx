@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
-  Alert,
+  Modal,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -26,12 +26,16 @@ export default function Perfil() {
   const { meusLivros } = useLivros();
   const { meusSolicitados } = useItens();
   const theme = PERFIL_THEME[usuario?.perfil] || PERFIL_THEME.aluno;
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const handleLogout = () => {
-    Alert.alert('Sair', 'Deseja realmente sair?', [
-      { text: 'Cancelar', style: 'cancel' },
-      { text: 'Sair', style: 'destructive', onPress: () => { logout(); router.replace('/login'); } },
-    ]);
+    setShowLogoutModal(true);
+  };
+
+  const confirmLogout = () => {
+    setShowLogoutModal(false);
+    logout();
+    router.replace('/login');
   };
 
   const infoItems = [
@@ -46,7 +50,7 @@ export default function Perfil() {
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={[styles.avatar, { backgroundColor: theme.accent }]}>
-          <Ionicons name={theme.icon} size={40} color="#FFF" />
+          <Ionicons name={theme.icon} size={28} color="#FFF" />
         </View>
         <Text style={styles.headerName}>{usuario?.nome}</Text>
         <Text style={styles.headerEmail}>{usuario?.email}</Text>
@@ -126,16 +130,48 @@ export default function Perfil() {
           <Text style={styles.logoutText}>Sair da conta</Text>
         </TouchableOpacity>
       </ScrollView>
+
+      {/* Modal de confirmação de logout */}
+      <Modal
+        visible={showLogoutModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowLogoutModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <View style={styles.modalIconCircle}>
+              <Ionicons name="log-out-outline" size={32} color={Colors.error} />
+            </View>
+            <Text style={styles.modalTitle}>Sair da conta</Text>
+            <Text style={styles.modalMessage}>Deseja realmente sair? Você precisará fazer login novamente.</Text>
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={styles.modalCancelBtn}
+                onPress={() => setShowLogoutModal(false)}
+              >
+                <Text style={styles.modalCancelText}>Cancelar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.modalConfirmBtn}
+                onPress={confirmLogout}
+              >
+                <Text style={styles.modalConfirmText}>Sair</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#000' },
-  header: { backgroundColor: '#000', paddingTop: 60, paddingBottom: 20, alignItems: 'center' },
-  avatar: { width: 85, height: 85, borderRadius: 25, alignItems: 'center', justifyContent: 'center', marginBottom: 15 },
-  headerName: { fontSize: 24, fontWeight: '900', color: '#FFF' },
-  headerEmail: { fontSize: 14, color: '#888', marginTop: 4 },
+  header: { backgroundColor: '#000', paddingTop: 50, paddingBottom: 12, alignItems: 'center' },
+  avatar: { width: 60, height: 60, borderRadius: 18, alignItems: 'center', justifyContent: 'center', marginBottom: 8 },
+  headerName: { fontSize: 18, fontWeight: '900', color: '#FFF' },
+  headerEmail: { fontSize: 12, color: '#888', marginTop: 2 },
   scroll: { paddingHorizontal: 15, paddingBottom: 40 },
   statsRow: { flexDirection: 'row', gap: 10, marginBottom: 25 },
   statCard: { flex: 1, height: 110, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
@@ -162,5 +198,17 @@ const styles = StyleSheet.create({
   infoDivider: { height: 1, backgroundColor: '#333', marginLeft: 72 },
   
   logoutBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', padding: 20, gap: 10 },
-  logoutText: { color: Colors.error, fontSize: 16, fontWeight: '700' }
+  logoutText: { color: Colors.error, fontSize: 16, fontWeight: '700' },
+
+  // Modal
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center', paddingHorizontal: 30 },
+  modalCard: { backgroundColor: '#1A1A1A', borderRadius: 24, padding: 28, width: '100%', maxWidth: 360, alignItems: 'center', borderWidth: 1, borderColor: '#333' },
+  modalIconCircle: { width: 64, height: 64, borderRadius: 32, backgroundColor: 'rgba(244,67,54,0.12)', alignItems: 'center', justifyContent: 'center', marginBottom: 16 },
+  modalTitle: { fontSize: 20, fontWeight: '800', color: '#FFF', marginBottom: 8 },
+  modalMessage: { fontSize: 14, color: '#999', textAlign: 'center', lineHeight: 20, marginBottom: 24 },
+  modalButtons: { flexDirection: 'row', gap: 12, width: '100%' },
+  modalCancelBtn: { flex: 1, paddingVertical: 14, borderRadius: 14, backgroundColor: '#2A2A2A', alignItems: 'center' },
+  modalCancelText: { fontSize: 15, fontWeight: '700', color: '#AAA' },
+  modalConfirmBtn: { flex: 1, paddingVertical: 14, borderRadius: 14, backgroundColor: Colors.error, alignItems: 'center' },
+  modalConfirmText: { fontSize: 15, fontWeight: '700', color: '#FFF' },
 });
