@@ -1,6 +1,6 @@
 # 📱 FIAP Finder - Aplicativo Mobile
 
-INTEGRANTES ESPF-2026: 
+INTEGRANTES ESPF-2026:
 
 - Enzo Dias — RM558225
 - Vinicius Henrique — RM556908
@@ -60,28 +60,37 @@ npm install -g expo-cli
 Escolha a plataforma desejada:
 
 #### 🌐 Rodar na Web
+
 ```bash
 npm run web
 ```
+
 Abre o navegador automaticamente em `http://localhost:19006`
 
 #### 📱 Rodar no Android (Emulador ou Device)
+
 ```bash
 npm run android
 ```
+
 Você precisa ter um emulador Android aberto ou um dispositivo conectado
 
 #### 🍎 Rodar no iOS (Emulador ou Device)
+
 ```bash
 npm run ios
 ```
+
 Requer macOS e Xcode instalado
 
 #### ▶️ Modo Desenvolvimento
+
 ```bash
 npm start
 ```
+
 Abre o Expo Metro Bundle. Use as teclas:
+
 - `a` - Abrir no Android
 - `i` - Abrir no iOS
 - `w` - Abrir na Web
@@ -157,17 +166,17 @@ fiap-finder/
 
 ## 🛠️ Dependências Principais
 
-| Dependência | Versão | Propósito |
-|---|---|---|
-| **expo** | ~54.0.33 | Framework para desenvolver apps React Native |
-| **react** | 19.1.0 | Biblioteca de UI (componentes) |
-| **react-native** | 0.81.5 | Framework mobile JavaScript |
-| **expo-router** | ~6.0.23 | Sistema de roteamento (navegação) |
-| **react-native-screens** | ~4.16.0 | Otimiza performance das telas |
-| **react-native-gesture-handler** | ~2.28.0 | Detecta gestos na tela (swipe, etc) |
-| **expo-vector-icons** | ~15.0.3 | Biblioteca de ícones |
-| **expo-font** | ~14.0.11 | Carregar fontes customizadas |
-| **react-native-safe-area-context** | ~5.6.0 | Respeita áreas seguras do device |
+| Dependência                        | Versão   | Propósito                                    |
+| ---------------------------------- | -------- | -------------------------------------------- |
+| **expo**                           | ~54.0.33 | Framework para desenvolver apps React Native |
+| **react**                          | 19.1.0   | Biblioteca de UI (componentes)               |
+| **react-native**                   | 0.81.5   | Framework mobile JavaScript                  |
+| **expo-router**                    | ~6.0.23  | Sistema de roteamento (navegação)            |
+| **react-native-screens**           | ~4.16.0  | Otimiza performance das telas                |
+| **react-native-gesture-handler**   | ~2.28.0  | Detecta gestos na tela (swipe, etc)          |
+| **expo-vector-icons**              | ~15.0.3  | Biblioteca de ícones                         |
+| **expo-font**                      | ~14.0.11 | Carregar fontes customizadas                 |
+| **react-native-safe-area-context** | ~5.6.0   | Respeita áreas seguras do device             |
 
 Para ver todas as dependências, abra o arquivo [package.json](package.json).
 
@@ -186,23 +195,25 @@ O app usa **React Context** para gerenciar estado global:
 ### Navegação
 
 O app usa **Expo Router** para:
+
 - **Navegação em abas** (Home, Biblioteca, Achados, Reservas, Perfil)
 - **Stack navigation** para detalhes de livros e itens
 - **Deep linking** (links profundos para compartilhar)
 
 ### Hooks Utilizados
 
-| Hook | Onde é usado | Para quê |
-|---|---|---|
-| `useState` | Todas as telas e contextos | Gerenciar estados locais (busca, loading, feedback, dados do formulário de login, modais) |
-| `useEffect` | Telas e `LivrosContext` | Simular carregamento inicial, verificar livros atrasados com intervalo automático (60s) |
-| `useRef` | `login.jsx` | Criar referências para animações (fade-in e slide-up com `Animated.Value`) |
-| `useContext` | Contextos (via hooks customizados) | Acessar os contextos globais de autenticação, livros e itens |
-| `useRouter` | Telas, `BookCard`, `LostItemCard`, `Header` | Navegar entre telas (detalhes de livros/itens, login/logout, voltar) |
-| `useLocalSearchParams` | `livro/[id].jsx`, `item/[id].jsx` | Extrair o parâmetro `id` da URL para carregar detalhes do livro/item |
-| `createContext` | Todos os contextos | Criar os contextos globais (`AuthContext`, `LivrosContext`, `ItensContext`) |
+| Hook                   | Onde é usado                                | Para quê                                                                                  |
+| ---------------------- | ------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `useState`             | Todas as telas e contextos                  | Gerenciar estados locais (busca, loading, feedback, dados do formulário de login, modais) |
+| `useEffect`            | Telas e `LivrosContext`                     | Simular carregamento inicial, verificar livros atrasados com intervalo automático (60s)   |
+| `useRef`               | `login.jsx`                                 | Criar referências para animações (fade-in e slide-up com `Animated.Value`)                |
+| `useContext`           | Contextos (via hooks customizados)          | Acessar os contextos globais de autenticação, livros e itens                              |
+| `useRouter`            | Telas, `BookCard`, `LostItemCard`, `Header` | Navegar entre telas (detalhes de livros/itens, login/logout, voltar)                      |
+| `useLocalSearchParams` | `livro/[id].jsx`, `item/[id].jsx`           | Extrair o parâmetro `id` da URL para carregar detalhes do livro/item                      |
+| `createContext`        | Todos os contextos                          | Criar os contextos globais (`AuthContext`, `LivrosContext`, `ItensContext`)               |
 
 **Hooks customizados criados:**
+
 - `useAuth()` — acessa dados do usuário logado e funções `login`/`logout`
 - `useLivros()` — acessa lista de livros e funções de reserva, retirada, devolução e renovação
 - `useItens()` — acessa itens perdidos/encontrados e funções de solicitação e retirada
@@ -219,29 +230,35 @@ O app usa **Expo Router** para:
 ## 💡 Como Usar o App
 
 ### 1️⃣ Tela de Login
+
 - Faça login com suas credenciais
 - Primeiro acesso? Use dados de teste (se disponíveis)
 
 ### 2️⃣ Home (Inicial)
+
 - Visualize destaques e últimas atualizações
 - Acesso rápido às principais funcionalidades
 
 ### 3️⃣ Biblioteca
+
 - Busque livros por título, autor ou categoria
 - Clique em um livro para ver detalhes
 - Faça reserva de livros disponíveis
 
 ### 4️⃣ Achados
+
 - Visualize itens perdidos reportados por outros usuários
 - Pesquise por tipo de item ou data
 - Se encontrou algo, contate o dono
 
 ### 5️⃣ Reservas
+
 - Veja seus livros reservados
 - Acompanhe o status de cada reserva
 - Cancele reservas se necessário
 
 ### 6️⃣ Perfil
+
 - Edite suas informações pessoais
 - Configure preferências do app
 - Logout
@@ -253,6 +270,7 @@ O app usa **Expo Router** para:
 ### Usando o Expo DevTools
 
 Quando o app está rodando, aperte:
+
 - `Ctrl + Shift + D` (Windows/Linux)
 - `Cmd + Shift + D` (Mac)
 
@@ -298,18 +316,21 @@ REACT_APP_AUTH_TOKEN=seu-token
 ## 📝 Padrões de Código
 
 ### Nomes de Componentes
+
 - Componentes sempre com **PascalCase** (ex: `BookCard.jsx`)
 - Páginas/Telas também com **PascalCase**
 
 ### Nomes de Arquivos
+
 - Contextos: `*Context.jsx`
 - Utilitários: `*Utils.js`
 - Componentes: `*.jsx`
 
 ### Estrutura de Componentes
+
 ```javascript
-import React from 'react';
-import { View, Text } from 'react-native';
+import React from "react";
+import { View, Text } from "react-native";
 
 export default function MeuComponente({ prop1, prop2 }) {
   return (
@@ -325,19 +346,23 @@ export default function MeuComponente({ prop1, prop2 }) {
 ## 🆘 Troubleshooting
 
 ### Erro: "npm not found"
+
 - Node.js não está instalado ou não está no PATH
 - [Baixe Node.js aqui](https://nodejs.org/)
 
 ### Erro: "Expo CLI not found"
+
 ```bash
 npm install -g expo-cli
 ```
 
 ### App não recarrega depois de salvar
+
 - Pressione `r` no terminal (hard refresh)
 - Ou reinicie com `npm start`
 
 ### Erro de dependências
+
 ```bash
 # Limpe o cache
 npm cache clean --force
@@ -348,7 +373,9 @@ npm install
 ```
 
 ### Porta já está em uso
+
 Se receber erro de porta (ex: 19006 está ocupada):
+
 ```bash
 npm start -- --port 19007
 ```
@@ -394,6 +421,7 @@ Este projeto é parte do curso FIAP.
 ## 💬 Dúvidas?
 
 Se tiver dúvidas sobre o projeto, verifique:
+
 1. Este README
 2. Os comentários no código
 3. A documentação oficial do Expo
@@ -405,21 +433,21 @@ Se tiver dúvidas sobre o projeto, verifique:
 
 ### Prints das Telas
 
-| Tela | Screenshot |
-|---|---|
-| Login | ![Login](assets/login.jpeg) |
-| Home | ![Home](assets/home.jpeg) |
-| Biblioteca | ![Biblioteca](assets/biblioteca.jpeg) |
-| Detalhes do Livro | ![Detalhes Livro](assets/detalheslivro.jpeg) |
-| Achados e Perdidos | ![Achados](assets/achadoseperdidos.jpeg) |
-| Detalhes do Item | ![Detalhes Item](assets/detalhesitem.jpeg) |
-| Reservas | ![Reservas](assets/reservas.jpeg) |
-| Perfil | ![Perfil](assets/perfil.jpeg) |
-| Cadastro | Print pendente: `assets/cadastro.jpeg` |
-| Aguardando aprovação | Print pendente: `assets/aguardando.jpeg` |
-| Perfil do atendente | Print pendente: `assets/perfil-atendente.jpeg` |
-| Modo escuro | Print pendente: `assets/modo-escuro.jpeg` |
-| Busca em tempo real | Print pendente: `assets/busca-tempo-real.jpeg` |
+| Tela                 | Screenshot                                        |
+| -------------------- | ------------------------------------------------- |
+| Login                | ![Login](assets/login.jpeg)                       |
+| Home                 | ![Home](assets/home.jpeg)                         |
+| Biblioteca           | ![Biblioteca](assets/biblioteca.jpeg)             |
+| Detalhes do Livro    | ![Detalhes Livro](assets/detalheslivro.jpeg)      |
+| Achados e Perdidos   | ![Achados](assets/achadoseperdidos.jpeg)          |
+| Detalhes do Item     | ![Detalhes Item](assets/detalhesitem.jpeg)        |
+| Reservas             | ![Reservas](assets/reservas.jpeg)                 |
+| Perfil               | ![Perfil](assets/perfil.jpeg)                     |
+| Cadastro             | ![Cadastro](assets/cadastro.jpeg)                 |
+| Aguardando aprovação | ![Aguardando](assets/aguardando.jpeg)             |
+| Perfil do atendente  | ![Perfil Atendente](assets/perfil-atendente.jpeg) |
+| Modo escuro          | ![Modo Escuro](assets/modo-escuro.jpeg)           |
+| Busca em tempo real  | ![Busca](assets/busca-tempo-real.jpeg)            |
 
 ### Vídeo / GIF do Fluxo Principal
 
@@ -471,9 +499,9 @@ Foram adicionadas melhorias no fluxo de autenticação:
 
 Perfis de demonstração disponíveis:
 
-| Perfil | E-mail | Senha |
-|---|---|---|
-| Aluno | `aluno@fiap.com.br` | `123456` |
+| Perfil    | E-mail                  | Senha    |
+| --------- | ----------------------- | -------- |
+| Aluno     | `aluno@fiap.com.br`     | `123456` |
 | Professor | `professor@fiap.com.br` | `123456` |
 | Atendente | `atendente@fiap.com.br` | `123456` |
 
@@ -524,15 +552,15 @@ Funções:
 
 Chaves usadas:
 
-| Chave | Uso |
-|---|---|
-| `@user` | Sessão do usuário logado |
-| `@users` | Usuários cadastrados |
-| `@livros` | Estado dos livros, reservas, empréstimos e devoluções |
-| `@itens` | Itens reportados, solicitados e retirados |
-| `@theme` | Tema claro/escuro |
-| `@favoritos` | Livros favoritos |
-| `@first_access_seen:<email>` | Controle da mensagem de primeiro acesso |
+| Chave                        | Uso                                                   |
+| ---------------------------- | ----------------------------------------------------- |
+| `@user`                      | Sessão do usuário logado                              |
+| `@users`                     | Usuários cadastrados                                  |
+| `@livros`                    | Estado dos livros, reservas, empréstimos e devoluções |
+| `@itens`                     | Itens reportados, solicitados e retirados             |
+| `@theme`                     | Tema claro/escuro                                     |
+| `@favoritos`                 | Livros favoritos                                      |
+| `@first_access_seen:<email>` | Controle da mensagem de primeiro acesso               |
 
 Os contextos `LivrosContext` e `ItensContext` agora possuem `loadData()` e `saveData()` e persistem as alterações feitas no app.
 
