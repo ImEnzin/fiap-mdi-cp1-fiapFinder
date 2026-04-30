@@ -5,103 +5,155 @@ import { Ionicons } from '@expo/vector-icons';
 import Colors from '../constants/colors';
 import StatusBadge from './StatusBadge';
 import { formatDate } from '../utils/dateUtils';
+import { useTheme } from '../context/ThemeContext';
 
-const CAT_COLORS = {
-  encontrado: { border: Colors.info },
-  solicitado: { border: Colors.primary },
-  retirado: { border: Colors.success },
+const STATUS_ACCENT = {
+  encontrado: Colors.info,
+  solicitado: Colors.primary,
+  retirado: Colors.success,
 };
 
 export default function LostItemCard({ item }) {
   const router = useRouter();
-  const colors = CAT_COLORS[item.status] || CAT_COLORS.encontrado;
+  const { theme } = useTheme();
+  const accent = STATUS_ACCENT[item.status] || Colors.info;
 
   return (
     <TouchableOpacity
-      style={[styles.card, { borderLeftColor: colors.border }]}
-      activeOpacity={0.85}
+      style={[
+        styles.card,
+        {
+          backgroundColor: theme.card,
+          borderColor: theme.border,
+          shadowColor: theme.mode === 'dark' ? '#000' : '#111827',
+        },
+      ]}
+      activeOpacity={0.88}
       onPress={() => router.push(`/item/${item.id}`)}
     >
-      <View style={styles.imgWrap}>
-        <Image source={{ uri: item.imagem }} style={styles.image} />
+      <View style={[styles.accentBar, { backgroundColor: accent }]} />
+
+      <View style={[styles.imgWrap, { backgroundColor: theme.cardAlt }]}>
+        <Image source={{ uri: item.imagem }} style={styles.image} resizeMode="cover" />
       </View>
+
       <View style={styles.info}>
-        <Text style={styles.name} numberOfLines={1}>{item.nome}</Text>
-        
-        <View style={styles.row}>
-          <Ionicons name="location" size={13} color={Colors.primary} />
-          <Text style={styles.location} numberOfLines={1}>{item.localEncontrado}</Text>
-        </View>
-        
-        <View style={styles.row}>
-          <Ionicons name="calendar" size={13} color="#888" />
-          <Text style={styles.date}>{formatDate(item.dataEncontrado)}</Text>
-        </View>
-        
-        <View style={styles.row}>
-          <Ionicons name="folder" size={13} color="#888" />
-          <Text style={styles.catText}>{item.categoria}</Text>
+        <View style={styles.topRow}>
+          <Text style={[styles.name, { color: theme.text }]} numberOfLines={2}>
+            {item.nome}
+          </Text>
+
+          <Ionicons name="chevron-forward" size={18} color={theme.icon} />
         </View>
 
-        <View style={{ marginTop: 4, alignSelf: 'flex-start' }}>
+        <View style={styles.row}>
+          <Ionicons name="location-outline" size={14} color={accent} />
+          <Text style={[styles.location, { color: theme.subText }]} numberOfLines={1}>
+            {item.localEncontrado}
+          </Text>
+        </View>
+
+        <View style={styles.metaGrid}>
+          <View style={styles.metaItem}>
+            <Ionicons name="calendar-outline" size={13} color={theme.icon} />
+            <Text style={[styles.metaText, { color: theme.subText }]} numberOfLines={1}>
+              {formatDate(item.dataEncontrado)}
+            </Text>
+          </View>
+
+          <View style={styles.metaItem}>
+            <Ionicons name="pricetag-outline" size={13} color={theme.icon} />
+            <Text style={[styles.metaText, { color: theme.subText }]} numberOfLines={1}>
+              {item.categoria}
+            </Text>
+          </View>
+        </View>
+
+        <View style={styles.footer}>
           <StatusBadge status={item.status} />
         </View>
       </View>
-      <Ionicons name="chevron-forward" size={18} color={Colors.darkGray} />
     </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: Colors.darkGray, 
-    borderRadius: 18,
     flexDirection: 'row',
-    padding: 12,
-    marginBottom: 12,
-    borderLeftWidth: 4,
+    alignItems: 'center',
+    padding: 14,
+    marginBottom: 14,
+    borderRadius: 22,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)', 
-    alignItems: 'center'
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.12,
+    shadowRadius: 18,
+    elevation: 4,
+    overflow: 'hidden',
+  },
+  accentBar: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 0,
+    width: 4,
   },
   imgWrap: {
-    borderRadius: 14,
+    width: 82,
+    height: 82,
+    borderRadius: 18,
     overflow: 'hidden',
-    backgroundColor: '#333',
   },
   image: {
-    width: 80,
-    height: 80,
-    backgroundColor: '#222',
+    width: '100%',
+    height: '100%',
   },
   info: {
     flex: 1,
     marginLeft: 14,
     justifyContent: 'center',
-    gap: 3,
+    gap: 8,
+  },
+  topRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: 10,
   },
   name: {
+    flex: 1,
     fontSize: 16,
-    fontWeight: '800',
-    color: Colors.white, 
+    fontWeight: '900',
+    lineHeight: 22,
     letterSpacing: -0.2,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
+    gap: 6,
   },
   location: {
-    fontSize: 12,
-    color: '#AAA', 
     flex: 1,
+    fontSize: 13,
+    fontWeight: '600',
   },
-  date: {
-    fontSize: 12,
-    color: '#777',
+  metaGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
   },
-  catText: {
+  metaItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    maxWidth: '100%',
+  },
+  metaText: {
     fontSize: 12,
-    color: '#777',
+    fontWeight: '600',
+  },
+  footer: {
+    marginTop: 2,
+    alignItems: 'flex-start',
   },
 });

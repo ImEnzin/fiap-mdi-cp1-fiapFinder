@@ -2,17 +2,47 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import livrosIniciais from '../data/livros';
 import { hoje, adicionarDias, calcularDiasRestantes } from '../utils/dateUtils';
 import { useAuth } from './AuthContext';
+import { loadData as loadStorageData, saveData as saveStorageData } from '../utils/storage';
+import { addHistory } from '../utils/history';
+
+const STORAGE_KEY = '@livros';
 
 const LivrosContext = createContext();
 
 export function LivrosProvider({ children }) {
   const [livros, setLivros] = useState(livrosIniciais);
+  const [hydrated, setHydrated] = useState(false);
   const { usuario } = useAuth();
+
+  const loadData = async () => {
+    const stored = await loadStorageData(STORAGE_KEY);
+    setLivros(stored && stored.length > 0 ? stored : livrosIniciais);
+    setHydrated(true);
+  };
+
+  const saveData = async (data) => {
+    await saveStorageData(STORAGE_KEY, data);
+  };
+
+  // Carrega dados do AsyncStorage na inicialização
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  // Persiste sempre que livros mudar
+  const setLivrosPersistido = (updater) => {
+    setLivros((prev) => {
+      const next = typeof updater === 'function' ? updater(prev) : updater;
+      if (hydrated) saveData(next);
+      return next;
+    });
+  };
 
   // Atualizar status "atrasado" automaticamente
   useEffect(() => {
+    if (!hydrated) return undefined;
     const interval = setInterval(() => {
-      setLivros((prev) =>
+      setLivrosPersistido((prev) =>
         prev.map((l) => {
           if (l.status === 'emprestado' && l.dataPrevistaDevolucao) {
             const dias = calcularDiasRestantes(l.dataPrevistaDevolucao);
@@ -23,11 +53,12 @@ export function LivrosProvider({ children }) {
       );
     }, 60000);
     return () => clearInterval(interval);
-  }, []);
+  }, [hydrated]);
 
   // Verificar atrasados no mount
   useEffect(() => {
-    setLivros((prev) =>
+    if (!hydrated) return;
+    setLivrosPersistido((prev) =>
       prev.map((l) => {
         if (l.status === 'emprestado' && l.dataPrevistaDevolucao) {
           const dias = calcularDiasRestantes(l.dataPrevistaDevolucao);
@@ -36,7 +67,7 @@ export function LivrosProvider({ children }) {
         return l;
       })
     );
-  }, []);
+  }, [hydrated]);
 
   const reservarLivro = (livroId) => {
     if (!usuario) return { ok: false, erro: 'Usuário não autenticado.' };
@@ -55,7 +86,7 @@ export function LivrosProvider({ children }) {
     if (!livro) return { ok: false, erro: 'Livro não encontrado.' };
     if (livro.status !== 'disponivel') return { ok: false, erro: 'Livro não está disponível.' };
 
-    setLivros((prev) =>
+    setLivrosPersistido((prev) =>
       prev.map((l) =>
         l.id === livroId
           ? {
@@ -68,6 +99,13 @@ export function LivrosProvider({ children }) {
           : l
       )
     );
+    addHistory({
+      tipo: 'livro_reservado',
+      titulo: 'Livro reservado',
+      descricao: `${usuario.email} reservou "${livro.titulo}".`,
+      ator: usuario.email,
+      alvo: livro.titulo,
+    });
     return { ok: true };
   };
 
@@ -80,7 +118,7 @@ export function LivrosProvider({ children }) {
 
     const prazoDias = livro.prazoDias || 14;
 
-    setLivros((prev) =>
+    setLivrosPersistido((prev) =>
       prev.map((l) =>
         l.id === livroId
           ? {
@@ -92,6 +130,13 @@ export function LivrosProvider({ children }) {
           : l
       )
     );
+    addHistory({
+      tipo: 'livro_retirado',
+      titulo: 'Retirada confirmada',
+      descricao: `${usuario.email} confirmou retirada de "${livro.titulo}" para ${livro.reservadoPor}.`,
+      ator: usuario.email,
+      alvo: livro.titulo,
+    });
     return { ok: true };
   };
 
@@ -104,7 +149,7 @@ export function LivrosProvider({ children }) {
       return { ok: false, erro: 'Livro não está emprestado.' };
     }
 
-    setLivros((prev) =>
+    setLivrosPersistido((prev) =>
       prev.map((l) =>
         l.id === livroId
           ? {
@@ -119,6 +164,13 @@ export function LivrosProvider({ children }) {
           : l
       )
     );
+    addHistory({
+      tipo: 'livro_devolvido',
+      titulo: 'Devolução confirmada',
+      descricao: `${usuario.email} confirmou devolução de "${livro.titulo}".`,
+      ator: usuario.email,
+      alvo: livro.titulo,
+    });
     return { ok: true };
   };
 
@@ -140,7 +192,7 @@ export function LivrosProvider({ children }) {
 
     const novaData = adicionarDias(hoje(), usuario.prazoDias);
 
-    setLivros((prev) =>
+    setLivrosPersistido((prev) =>
       prev.map((l) =>
         l.id === livroId
           ? {
@@ -152,6 +204,13 @@ export function LivrosProvider({ children }) {
           : l
       )
     );
+    addHistory({
+      tipo: 'livro_renovado',
+      titulo: 'Empréstimo renovado',
+      descricao: `${usuario.email} renovou "${livro.titulo}".`,
+      ator: usuario.email,
+      alvo: livro.titulo,
+    });
     return { ok: true };
   };
 
@@ -172,6 +231,8 @@ export function LivrosProvider({ children }) {
         confirmarRetirada,
         confirmarDevolucao,
         renovarEmprestimo,
+        loadData,
+        saveData,
       }}
     >
       {children}

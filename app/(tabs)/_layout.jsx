@@ -2,15 +2,21 @@ import React from 'react';
 import { Redirect, Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 import Colors from '../../constants/colors';
 
 // Mantivemos a lógica de perfil, mas agora o accent é fixo no Magenta
 export default function TabsLayout() {
   const { usuario } = useAuth();
+  const { theme } = useTheme();
 
   // LÓGICA DE LOGIN: MANTIDA
   if (!usuario) {
     return <Redirect href="/login" />;
+  }
+
+  if (usuario.aprovado === false && usuario.perfil !== 'atendente') {
+    return <Redirect href="/aguardando" />;
   }
 
   // DEFINIÇÃO DO MAGENTA: APENAS ALTERAÇÃO VISUAL
@@ -22,10 +28,10 @@ export default function TabsLayout() {
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: accent, // Aplica o Magenta no ícone ativo
-        tabBarInactiveTintColor: '#BDBDBD',
+        tabBarInactiveTintColor: theme.mode === 'dark' ? '#BDBDBD' : '#999999',
         tabBarStyle: {
-          backgroundColor: '#111',
-          borderTopColor: 'rgba(255,255,255,0.06)',
+          backgroundColor: theme.tabBar,
+          borderTopColor: theme.border,
           borderTopWidth: 1,
           height: 66,
           paddingBottom: 10,

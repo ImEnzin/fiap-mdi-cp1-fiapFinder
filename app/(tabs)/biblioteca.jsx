@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { View, FlatList, StyleSheet, Text, TouchableOpacity, Image, ScrollView, Dimensions, Alert } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, FlatList, StyleSheet, Text, TouchableOpacity, Image, ScrollView, Dimensions, Alert, RefreshControl } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '../../constants/colors';
 import { useAuth } from '../../context/AuthContext';
 import { useLivros } from '../../context/LivrosContext';
+import { useFavoritos } from '../../context/FavoritosContext';
+import { useTheme } from '../../context/ThemeContext';
 import SearchBar from '../../components/SearchBar';
 import BookCard from '../../components/BookCard';
 import EmptyState from '../../components/EmptyState';
@@ -25,6 +27,8 @@ const PERFIL_THEME = {
 function GestaoAcervo({ livros, router, confirmarRetirada, confirmarDevolucao }) {
   const [busca, setBusca] = useState('');
   const [filtroStatus, setFiltroStatus] = useState('Todos');
+  const [filtroCategoria, setFiltroCategoria] = useState('Todas');
+  const categorias = ['Todas', ...Array.from(new Set(livros.map((l) => l.categoria).filter(Boolean)))];
 
   const livrosFiltrados = livros.filter((l) => {
     const matchBusca =
@@ -32,7 +36,8 @@ function GestaoAcervo({ livros, router, confirmarRetirada, confirmarDevolucao })
       l.autor.toLowerCase().includes(busca.toLowerCase()) ||
       (l.reservadoPor || '').toLowerCase().includes(busca.toLowerCase());
     const matchStatus = filtroStatus === 'Todos' || l.status === filtroStatus;
-    return matchBusca && matchStatus;
+    const matchCategoria = filtroCategoria === 'Todas' || l.categoria === filtroCategoria;
+    return matchBusca && matchStatus && matchCategoria;
   });
 
   const atrasados = livros.filter((l) => l.status === 'atrasado');
@@ -183,6 +188,19 @@ function GestaoAcervo({ livros, router, confirmarRetirada, confirmarDevolucao })
               })}
             </ScrollView>
 
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterRow}>
+              {categorias.map((cat) => (
+                <TouchableOpacity
+                  key={cat}
+                  style={[styles.filterChip, filtroCategoria === cat && { backgroundColor: '#E65100', borderColor: '#E65100' }]}
+                  onPress={() => setFiltroCategoria(cat)}
+                >
+                  <Ionicons name="pricetag" size={14} color={filtroCategoria === cat ? '#FFF' : '#999'} />
+                  <Text style={[styles.filterText, filtroCategoria === cat && styles.filterTextActive]}>{cat}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+
             <Text style={gs.resultLabel}>{livrosFiltrados.length} resultado(s)</Text>
           </>
         }
@@ -196,11 +214,15 @@ export default function Biblioteca() {
   const router = useRouter();
   const { usuario } = useAuth();
   const { livros, confirmarRetirada, confirmarDevolucao } = useLivros();
+  const { favoritos, isFavorito } = useFavoritos();
+  const { theme: appTheme } = useTheme();
   const [busca, setBusca] = useState('');
   const [filtroStatus, setFiltroStatus] = useState('Todos');
+  const [filtroCategoria, setFiltroCategoria] = useState('Todas');
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const theme = PERFIL_THEME[usuario?.perfil] || PERFIL_THEME.aluno;
+  const perfilTheme = PERFIL_THEME[usuario?.perfil] || PERFIL_THEME.aluno;
   const isAtendente = usuario?.perfil === 'atendente';
 
   useEffect(() => {
@@ -208,7 +230,12 @@ export default function Biblioteca() {
     return () => clearTimeout(timer);
   }, []);
 
-  if (loading) return <View style={styles.container}><LoadingState message="Carregando acervo..." /></View>;
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    setTimeout(() => setRefreshing(false), 1000);
+  }, []);
+
+  if (loading) return <View style={[styles.container, { backgroundColor: appTheme.bg }]}><LoadingState message="Carregando acervo..." /></View>;
 
   if (isAtendente) {
     return <GestaoAcervo livros={livros} router={router} confirmarRetirada={confirmarRetirada} confirmarDevolucao={confirmarDevolucao} />;
@@ -219,8 +246,12 @@ export default function Biblioteca() {
       l.titulo.toLowerCase().includes(busca.toLowerCase()) ||
       l.autor.toLowerCase().includes(busca.toLowerCase());
     const matchStatus = filtroStatus === 'Todos' || l.status === filtroStatus;
-    return matchBusca && matchStatus;
+    const matchCategoria = filtroCategoria === 'Todas' || l.categoria === filtroCategoria;
+    return matchBusca && matchStatus && matchCategoria;
   });
+
+  const livrosFavoritos = livros.filter((l) => isFavorito(l.id));
+  const categorias = ['Todas', ...Array.from(new Set(livros.map((l) => l.categoria).filter(Boolean)))];
 
   const statusLabels = {
     Todos: 'Todos',
@@ -241,11 +272,11 @@ export default function Biblioteca() {
   const destaques = livros.filter((l) => l.status === 'disponivel').slice(0, 5);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: appTheme.bg }]}>
       {/* Header */}
-      <View style={[styles.header, { borderBottomColor: theme.accent }]}>
-        <Text style={styles.headerTitle}>Biblioteca</Text>
-        <Text style={styles.headerSub}>{livros.length} livros no acervo</Text>
+      <View style={[styles.header, { backgroundColor: appTheme.header, borderBottomColor: perfilTheme.accent || Colors.primary }]}>
+        <Text style={[styles.headerTitle, { color: appTheme.text }]}>Biblioteca</Text>
+        <Text style={[styles.headerSub, { color: appTheme.subText }]}>{livros.length} livros no acervo</Text>
       </View>
 
       <FlatList
@@ -254,6 +285,14 @@ export default function Biblioteca() {
         renderItem={({ item }) => <BookCard livro={item} />}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.listContent}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={Colors.primary}
+            colors={[Colors.primary]}
+          />
+        }
         ListHeaderComponent={
           <>
             <SearchBar value={busca} onChangeText={setBusca} placeholder="Buscar por título ou autor..." />
@@ -263,7 +302,7 @@ export default function Biblioteca() {
               {STATUS_FILTROS.map((f) => (
                 <TouchableOpacity
                   key={f}
-                  style={[styles.filterChip, filtroStatus === f && { backgroundColor: theme.accent, borderColor: theme.accent }]}
+                  style={[styles.filterChip, filtroStatus === f && { backgroundColor: perfilTheme.accent, borderColor: perfilTheme.accent }]}
                   onPress={() => setFiltroStatus(f)}
                 >
                   <Ionicons name={statusIcons[f]} size={14} color={filtroStatus === f ? '#FFF' : '#999'} />
@@ -274,10 +313,48 @@ export default function Biblioteca() {
               ))}
             </ScrollView>
 
-            {/* Featured books carousel (only when no search/filter) */}
-            {!busca && filtroStatus === 'Todos' && destaques.length > 0 && (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterRow}>
+              {categorias.map((cat) => (
+                <TouchableOpacity
+                  key={cat}
+                  style={[styles.filterChip, filtroCategoria === cat && { backgroundColor: perfilTheme.accent, borderColor: perfilTheme.accent }]}
+                  onPress={() => setFiltroCategoria(cat)}
+                >
+                  <Ionicons name="pricetag" size={14} color={filtroCategoria === cat ? '#FFF' : '#999'} />
+                  <Text style={[styles.filterText, filtroCategoria === cat && styles.filterTextActive]}>{cat}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+
+            {/* Favoritos section */}
+            {!busca && filtroStatus === 'Todos' && filtroCategoria === 'Todas' && livrosFavoritos.length > 0 && (
               <>
-                <Text style={styles.sectionTitle}>Destaques</Text>
+                <View style={styles.sectionHeader}>
+                  <Ionicons name="heart" size={18} color={Colors.primary} />
+                  <Text style={[styles.sectionTitle, { color: appTheme.text }]}>Favoritos</Text>
+                  <Text style={styles.sectionCount}>{livrosFavoritos.length}</Text>
+                </View>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 20 }}>
+                  {livrosFavoritos.map((l) => (
+                    <TouchableOpacity key={l.id} style={styles.featCard} onPress={() => router.push(`/livro/${l.id}`)}>
+                      <Image source={{ uri: l.capa }} style={styles.featCover} />
+                      <View style={styles.featOverlay}>
+                        <Text style={styles.featTitle} numberOfLines={2}>{l.titulo}</Text>
+                        <Text style={styles.featAuthor} numberOfLines={1}>{l.autor}</Text>
+                      </View>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </>
+            )}
+
+            {/* Featured books carousel (only when no search/filter) */}
+            {!busca && filtroStatus === 'Todos' && filtroCategoria === 'Todas' && destaques.length > 0 && (
+              <>
+                <View style={styles.sectionHeader}>
+                  <Ionicons name="star" size={18} color="#F59E0B" />
+                  <Text style={[styles.sectionTitle, { color: appTheme.text }]}>Destaques</Text>
+                </View>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 16 }}>
                   {destaques.map((l) => (
                     <TouchableOpacity key={l.id} style={styles.featCard} onPress={() => router.push(`/livro/${l.id}`)}>
@@ -294,7 +371,7 @@ export default function Biblioteca() {
 
             {/* Result count */}
             <View style={styles.resultRow}>
-              <Text style={styles.resultText}>
+              <Text style={[styles.resultText, { color: appTheme.subText }]}>
                 {livrosFiltrados.length} resultado(s)
               </Text>
             </View>
@@ -330,7 +407,9 @@ const styles = StyleSheet.create({
   },
   filterText: { fontSize: 13, color: Colors.mediumGray, fontWeight: '700' },
   filterTextActive: { color: Colors.white },
-  sectionTitle: { fontSize: 20, fontWeight: '900', color: Colors.white, marginBottom: 16, letterSpacing: 0.5 },
+  sectionHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 14 },
+  sectionTitle: { fontSize: 20, fontWeight: '900', color: Colors.white, letterSpacing: 0.5, flex: 1 },
+  sectionCount: { fontSize: 14, color: Colors.primary, fontWeight: '800', backgroundColor: 'rgba(255,0,85,0.12)', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 10 },
   featCard: { width: 160, height: 220, marginRight: 14, borderRadius: 20, overflow: 'hidden', backgroundColor: Colors.darkGray, borderWidth: 1, borderColor: Colors.primary },
   featCover: { width: '100%', height: '100%', position: 'absolute' },
   featOverlay: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: 'rgba(0,0,0,0.75)', padding: 14 },

@@ -8,18 +8,18 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Alert,
   Image,
   Animated,
   Dimensions,
+  ActivityIndicator,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '../constants/colors';
 import { useAuth } from '../context/AuthContext';
+import { validateEmail, validateSenha } from '../utils/validators';
 
 const { width } = Dimensions.get('window');
-
 const PERFIS_OPTIONS = [
   {
     key: 'aluno',
@@ -68,6 +68,9 @@ export default function Login() {
   const [perfilSelecionado, setPerfilSelecionado] = useState('aluno');
   const [showSenha, setShowSenha] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [erroEmail, setErroEmail] = useState('');
+  const [erroSenha, setErroSenha] = useState('');
+  const [erroGeral, setErroGeral] = useState('');
   const { login } = useAuth();
   const router = useRouter();
 
@@ -90,18 +93,27 @@ export default function Login() {
     }
   };
 
-  const handleLogin = () => {
-    if (!email.trim()) return Alert.alert('Atenção', 'Informe seu email.');
-    if (!senha.trim()) return Alert.alert('Atenção', 'Informe sua senha.');
+  const handleLogin = async () => {
+    setErroGeral('');
+    const eEmail = validateEmail(email);
+    const eSenha = validateSenha(senha);
+    setErroEmail(eEmail || '');
+    setErroSenha(eSenha || '');
+    if (eEmail || eSenha) return;
     setLoading(true);
-    setTimeout(() => {
-      const ok = login(email.trim(), senha, perfilSelecionado);
-      setLoading(false);
-      ok ? router.replace('/(tabs)') : Alert.alert('Erro', 'Não foi possível realizar o login.');
-    }, 1000);
+    const result = await login(email.trim(), senha);
+    setLoading(false);
+    if (result.ok) {
+      router.replace(result.aprovado === false ? '/aguardando' : '/(tabs)');
+    } else {
+      setErroGeral(result.erro);
+    }
   };
 
   const active = PERFIS_OPTIONS.find((p) => p.key === perfilSelecionado);
+  const emailValido = !validateEmail(email);
+  const senhaValida = !validateSenha(senha);
+  const formValido = emailValido && senhaValida;
 
   return (
     <KeyboardAvoidingView
@@ -158,7 +170,7 @@ export default function Login() {
                   activeOpacity={0.8}
                 >
                   <View style={[styles.perfilIconCircle, isActive && { backgroundColor: p.color }]}>
-                    <Ionicons name={p.icon} size={20} color={isActive ? '#FFF' : '#AAA'} />
+                    <Ionicons name={p.icon} size={20} color={isActive ? '#FFF' : '#111827'} />
                   </View>
                   <Text style={[styles.perfilLabel, isActive && { color: p.color }]}>{p.label}</Text>
                   <Text style={styles.perfilDesc}>{p.desc}</Text>
@@ -169,45 +181,88 @@ export default function Login() {
 
           {/* Inputs */}
           <Text style={styles.inputLabel}>Email institucional</Text>
-          <View style={styles.inputRow}>
-            <Ionicons name="mail-outline" size={18} color={active?.color || '#AAA'} />
+          <View style={[styles.inputRow, !!erroEmail && { borderColor: Colors.error }]}>
+            <Ionicons name="mail-outline" size={18} color={erroEmail ? Colors.error : (active?.color || '#AAA')} />
             <TextInput
               style={styles.input}
               value={email}
-              onChangeText={setEmail}
+              onChangeText={(v) => {
+                setEmail(v);
+                if (erroEmail) setErroEmail('');
+                if (erroGeral) setErroGeral('');
+              }}
+              onBlur={() => setErroEmail(validateEmail(email) || '')}
               placeholder="seu.email@fiap.com.br"
-              placeholderTextColor="#BBB"
+              placeholderTextColor="#5F6368"
               keyboardType="email-address"
               autoCapitalize="none"
             />
           </View>
+          {!!erroEmail && <Text style={styles.erroField}>{erroEmail}</Text>}
 
           <Text style={styles.inputLabel}>Senha</Text>
-          <View style={styles.inputRow}>
-            <Ionicons name="lock-closed-outline" size={18} color={active?.color || '#AAA'} />
+          <View style={[styles.inputRow, !!erroSenha && { borderColor: Colors.error }]}>
+            <Ionicons name="lock-closed-outline" size={18} color={erroSenha ? Colors.error : (active?.color || '#AAA')} />
             <TextInput
               style={styles.input}
               value={senha}
-              onChangeText={setSenha}
+              onChangeText={(v) => {
+                setSenha(v);
+                if (erroSenha) setErroSenha('');
+                if (erroGeral) setErroGeral('');
+              }}
+              onBlur={() => setErroSenha(validateSenha(senha) || '')}
               placeholder="••••••••"
-              placeholderTextColor="#BBB"
+              placeholderTextColor="#5F6368"
               secureTextEntry={!showSenha}
             />
             <TouchableOpacity onPress={() => setShowSenha(!showSenha)}>
-              <Ionicons name={showSenha ? 'eye-off-outline' : 'eye-outline'} size={20} color="#AAA" />
+              <Ionicons name={showSenha ? 'eye-off-outline' : 'eye-outline'} size={20} color="#1F2937" />
             </TouchableOpacity>
           </View>
+          {!!erroSenha && <Text style={styles.erroField}>{erroSenha}</Text>}
+
+          {/* Erro geral */}
+          {!!erroGeral && (
+            <View style={styles.erroBanner}>
+              <Ionicons name="alert-circle" size={16} color={Colors.error} />
+              <Text style={styles.erroBannerText}>{erroGeral}</Text>
+            </View>
+          )}
 
           {/* Botão Login */}
           <TouchableOpacity
-            style={[styles.loginBtn, { backgroundColor: active?.color || Colors.primary }, loading && { opacity: 0.7 }]}
+            style={[
+              styles.loginBtn,
+              { backgroundColor: active?.color || Colors.primary },
+              (!formValido || loading) && { opacity: 0.55 },
+            ]}
             onPress={handleLogin}
-            disabled={loading}
+            disabled={loading || !formValido}
             activeOpacity={0.85}
           >
-            <Ionicons name={loading ? 'sync' : 'log-in-outline'} size={20} color="#FFF" />
-            <Text style={styles.loginBtnText}>{loading ? 'Entrando...' : `Entrar como ${active?.label}`}</Text>
+            {loading ? (
+              <ActivityIndicator color="#FFF" />
+            ) : (
+              <>
+                <Ionicons name="log-in-outline" size={20} color="#FFF" />
+                <Text style={styles.loginBtnText}>Entrar como {active?.label}</Text>
+              </>
+            )}
           </TouchableOpacity>
+
+          {/* Link Cadastro */}
+          <TouchableOpacity style={styles.cadastroRow} onPress={() => router.push('/cadastro')}>
+            <Text style={styles.cadastroText}>Não tem conta? </Text>
+            <Text style={styles.cadastroLink}>Criar conta</Text>
+          </TouchableOpacity>
+
+          <View style={styles.aprovacaoCard}>
+            <Ionicons name="shield-checkmark-outline" size={18} color={Colors.primary} />
+            <Text style={styles.aprovacaoText}>
+              Novas contas entram em análise e só acessam o app após aprovação do atendente.
+            </Text>
+          </View>
 
           {/* Footer */}
           <View style={styles.footer}>
@@ -215,7 +270,7 @@ export default function Login() {
             <Text style={styles.footerText}>FIAP Finder v2.0</Text>
             <View style={styles.line} />
           </View>
-          <Text style={styles.footerSub}>Projeto Acadêmico • CP01 Mobile</Text>
+          <Text style={styles.footerSub}>Projeto Acadêmico • CP02 Mobile</Text>
         </Animated.View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -253,23 +308,51 @@ const styles = StyleSheet.create({
     width: 40, height: 40, borderRadius: 12, backgroundColor: '#E0E0E0',
     alignItems: 'center', justifyContent: 'center', marginBottom: 6,
   },
-  perfilLabel: { fontSize: 13, fontWeight: '800', color: '#999' },
-  perfilDesc: { fontSize: 9, color: '#BBB', marginTop: 2, textAlign: 'center' },
-  inputLabel: { fontSize: 13, fontWeight: '700', color: '#666', marginBottom: 6, marginTop: 10 },
+  perfilLabel: { fontSize: 13, fontWeight: '800', color: '#111827' },
+  perfilDesc: { fontSize: 9, color: '#374151', marginTop: 2, textAlign: 'center' },
+  inputLabel: { fontSize: 13, fontWeight: '800', color: '#111827', marginBottom: 6, marginTop: 10 },
   inputRow: {
-    flexDirection: 'row', alignItems: 'center', backgroundColor: '#F8F8F8',
+    flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFFFFF',
     borderRadius: 14, paddingHorizontal: 14, paddingVertical: 13,
-    borderWidth: 1.5, borderColor: '#EEE',
+    borderWidth: 1.5, borderColor: '#D1D5DB',
   },
-  input: { flex: 1, marginLeft: 10, fontSize: 15, color: '#222' },
+  input: {
+    flex: 1,
+    marginLeft: 10,
+    fontSize: 15,
+    color: '#000000',
+    outlineStyle: 'none',
+    outlineWidth: 0,
+  },
   loginBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
     paddingVertical: 16, borderRadius: 16, marginTop: 22,
     shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 10, elevation: 5,
   },
   loginBtnText: { color: '#FFF', fontSize: 16, fontWeight: '800' },
-  footer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 28, gap: 12 },
-  line: { height: 1, flex: 1, backgroundColor: '#EEE' },
-  footerText: { color: '#CCC', fontSize: 11, fontWeight: '600' },
-  footerSub: { textAlign: 'center', color: '#DDD', fontSize: 10, marginTop: 6 },
+  erroField: { color: Colors.error, fontSize: 12, marginTop: 4, marginLeft: 4, marginBottom: 2 },
+  erroBanner: {
+    flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(244,67,54,0.08)',
+    borderRadius: 10, padding: 12, gap: 8, marginTop: 10,
+  },
+  erroBannerText: { color: Colors.error, fontSize: 13, flex: 1 },
+  cadastroRow: { flexDirection: 'row', justifyContent: 'center', marginTop: 16 },
+  cadastroText: { fontSize: 14, color: '#111827' },
+  cadastroLink: { fontSize: 14, color: Colors.primary, fontWeight: '700' },
+  aprovacaoCard: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    backgroundColor: '#F9FAFB',
+    borderColor: '#D1D5DB',
+    borderWidth: 1,
+    borderRadius: 14,
+    padding: 12,
+    marginTop: 16,
+    gap: 9,
+  },
+  aprovacaoText: { flex: 1, color: '#111827', fontSize: 12, lineHeight: 18, fontWeight: '700' },
+  footer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 24, gap: 12 },
+  line: { height: 1, flex: 1, backgroundColor: '#D1D5DB' },
+  footerText: { color: '#111827', fontSize: 11, fontWeight: '700' },
+  footerSub: { textAlign: 'center', color: '#374151', fontSize: 10, marginTop: 6 },
 });

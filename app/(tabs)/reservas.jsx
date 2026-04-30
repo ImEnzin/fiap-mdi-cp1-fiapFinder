@@ -8,6 +8,7 @@ import StatusBadge from '../../components/StatusBadge';
 import { useAuth } from '../../context/AuthContext';
 import { useLivros } from '../../context/LivrosContext';
 import { useItens } from '../../context/ItensContext';
+import { useTheme } from '../../context/ThemeContext';
 import { calcularDiasRestantes, formatDate } from '../../utils/dateUtils';
 
 const { width } = Dimensions.get('window');
@@ -106,49 +107,50 @@ export default function Reservas() {
   const { usuario } = useAuth();
   const { livros, meusLivros, confirmarRetirada, confirmarDevolucao } = useLivros();
   const { itens, meusSolicitados, confirmarRetiradaItem } = useItens();
-  const theme = PERFIL_THEME[usuario?.perfil] || PERFIL_THEME.aluno;
+  const { theme } = useTheme();
+  const theme_perfil = PERFIL_THEME[usuario?.perfil] || PERFIL_THEME.aluno;
 
   if (usuario?.perfil === 'atendente') {
     return <GestaoEmprestimos livros={livros} itens={itens} router={router} confirmarRetirada={confirmarRetirada} confirmarDevolucao={confirmarDevolucao} confirmarRetiradaItem={confirmarRetiradaItem} />;
   }
 
   return (
-    <View style={styles.container}>
-      <View style={[styles.header, { borderBottomColor: theme.accent }]}>
-        <Text style={styles.headerTitle}>Minhas Reservas</Text>
-        <Text style={styles.headerSub}>{meusLivros.length + meusSolicitados.length} ativo(s)</Text>
+    <View style={[styles.container, { backgroundColor: theme.bg }]}>
+      <View style={[styles.header, { backgroundColor: theme.header, borderBottomColor: theme_perfil.accent }]}>
+        <Text style={[styles.headerTitle, { color: theme.text }]}>Minhas Reservas</Text>
+        <Text style={[styles.headerSub, { color: theme.subText }]}>{meusLivros.length + meusSolicitados.length} ativo(s)</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={[styles.limitCard, { backgroundColor: theme.bg }]}>
-          <Ionicons name="information-circle" size={22} color={theme.accent} />
+        <View style={[styles.limitCard, { backgroundColor: theme_perfil.bg }]}>
+          <Ionicons name="information-circle" size={22} color={theme_perfil.accent} />
           <View style={{ flex: 1, marginLeft: 10 }}>
-            <Text style={[styles.limitTitle, { color: theme.accent }]}>Limites do Perfil</Text>
-            <Text style={styles.limitText}>{meusLivros.length}/{usuario?.maxLivros} livros • {usuario?.prazoDias} dias de prazo</Text>
+            <Text style={[styles.limitTitle, { color: theme_perfil.accent }]}>Limites do Perfil</Text>
+            <Text style={[styles.limitText, { color: theme.subText }]}>{meusLivros.length}/{usuario?.maxLivros} livros • {usuario?.prazoDias} dias de prazo</Text>
           </View>
         </View>
 
-        <Text style={styles.sectionTitle}>Livros</Text>
+        <Text style={[styles.sectionTitle, { color: theme.text }]}>Livros</Text>
         {meusLivros.length === 0 ? <EmptyState icon="bookmark-outline" message="Nenhuma reserva." /> : 
           meusLivros.map(item => (
-            <TouchableOpacity key={item.id} style={styles.card} onPress={() => router.push(`/livro/${item.id}`)}>
+            <TouchableOpacity key={item.id} style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border }]} onPress={() => router.push(`/livro/${item.id}`)}>
               <Image source={{ uri: item.capa }} style={styles.cover} />
               <View style={styles.info}>
-                <Text style={styles.title}>{item.titulo}</Text>
+                <Text style={[styles.title, { color: theme.text }]}>{item.titulo}</Text>
                 <StatusBadge status={item.status} />
-                <Text style={styles.dateText}>Prazo: {formatDate(item.dataPrevistaDevolucao)}</Text>
+                <Text style={[styles.dateText, { color: theme.subText }]}>Prazo: {formatDate(item.dataPrevistaDevolucao)}</Text>
               </View>
             </TouchableOpacity>
           ))
         }
 
-        <Text style={[styles.sectionTitle, { marginTop: 20 }]}>Itens Solicitados</Text>
+        <Text style={[styles.sectionTitle, { color: theme.text, marginTop: 20 }]}>Itens Solicitados</Text>
         {meusSolicitados.length === 0 ? <EmptyState icon="search-outline" message="Nenhum item solicitado." /> :
           meusSolicitados.map(item => (
-            <TouchableOpacity key={item.id} style={styles.card} onPress={() => router.push(`/item/${item.id}`)}>
+            <TouchableOpacity key={item.id} style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border }]} onPress={() => router.push(`/item/${item.id}`)}>
               <Image source={{ uri: item.imagem }} style={styles.itemImg} />
               <View style={styles.info}>
-                <Text style={styles.title}>{item.nome}</Text>
+                <Text style={[styles.title, { color: theme.text }]}>{item.nome}</Text>
                 <StatusBadge status="solicitado" />
               </View>
             </TouchableOpacity>

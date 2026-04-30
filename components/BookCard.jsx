@@ -4,42 +4,104 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '../constants/colors';
 import StatusBadge from './StatusBadge';
+import { useFavoritos } from '../context/FavoritosContext';
+import { useTheme } from '../context/ThemeContext';
 
 const CAT_ICONS = {
   'Engenharia de Software': 'code-slash',
-  'Redes': 'globe',
-  'Mobile': 'phone-portrait',
+  Redes: 'globe',
+  Mobile: 'phone-portrait',
   'Banco de Dados': 'server',
   'Inteligência Artificial': 'hardware-chip',
   'Sistemas Operacionais': 'desktop',
-  'Programação': 'terminal',
-  'Gestão': 'people',
+  Programação: 'terminal',
+  Gestão: 'people',
 };
 
 export default function BookCard({ livro }) {
   const router = useRouter();
+  const { isFavorito, toggleFavorito } = useFavoritos();
+  const { theme } = useTheme();
   const catIcon = CAT_ICONS[livro.categoria] || 'book';
   const { width: screenWidth } = Dimensions.get('window');
+  const favorito = isFavorito(livro.id);
+
+  const coverSize = {
+    width: Math.min(92, screenWidth * 0.24),
+    height: Math.min(132, screenWidth * 0.34),
+  };
 
   return (
     <TouchableOpacity
-      style={styles.card}
-      activeOpacity={0.85}
+      style={[
+        styles.card,
+        {
+          backgroundColor: theme.card,
+          borderColor: theme.border,
+          shadowColor: theme.mode === 'dark' ? '#000' : '#111827',
+        },
+      ]}
+      activeOpacity={0.88}
       onPress={() => router.push(`/livro/${livro.id}`)}
     >
-      <View style={styles.coverWrap}>
-        <Image source={{ uri: livro.capa }} style={[styles.cover, { width: Math.min(90, screenWidth * 0.22), height: Math.min(130, screenWidth * 0.32) }]} />
+      <View style={[styles.coverWrap, { backgroundColor: theme.cardAlt }]}>
+        <Image
+          source={{ uri: livro.capa }}
+          style={[styles.cover, coverSize]}
+          resizeMode="cover"
+        />
       </View>
+
       <View style={styles.info}>
-        <Text style={styles.title} numberOfLines={2}>{livro.titulo}</Text>
-        <Text style={styles.author} numberOfLines={1}>{livro.autor}</Text>
-        <View style={styles.catRow}>
-          <Ionicons name={catIcon} size={12} color={Colors.primary} />
-          <Text style={styles.category}>{livro.categoria}</Text>
+        <View style={styles.topRow}>
+          <View style={styles.titleWrap}>
+            <Text style={[styles.title, { color: theme.text }]} numberOfLines={2}>
+              {livro.titulo}
+            </Text>
+            <Text style={[styles.author, { color: theme.subText }]} numberOfLines={1}>
+              {livro.autor}
+            </Text>
+          </View>
+
+          <TouchableOpacity
+            onPress={() => toggleFavorito(livro.id)}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            style={[
+              styles.heartBtn,
+              {
+                backgroundColor: favorito ? `${Colors.primary}18` : theme.cardAlt,
+                borderColor: favorito ? `${Colors.primary}28` : theme.border,
+              },
+            ]}
+            accessibilityRole="button"
+            accessibilityLabel={favorito ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+            activeOpacity={0.8}
+          >
+            <Ionicons
+              name={favorito ? 'heart' : 'heart-outline'}
+              size={18}
+              color={favorito ? Colors.primary : theme.subText}
+            />
+          </TouchableOpacity>
         </View>
+
+        <View style={styles.metaRow}>
+          <View style={styles.categoryRow}>
+            <Ionicons name={catIcon} size={12} color={Colors.primary} />
+            <Text style={[styles.category, { color: theme.subText }]} numberOfLines={1}>
+              {livro.categoria}
+            </Text>
+          </View>
+
+          {livro.ano ? (
+            <View style={[styles.yearPill, { backgroundColor: theme.cardAlt, borderColor: theme.border }]}>
+              <Text style={[styles.year, { color: theme.text }]}>{livro.ano}</Text>
+            </View>
+          ) : null}
+        </View>
+
         <View style={styles.footer}>
           <StatusBadge status={livro.status} />
-          {livro.ano && <Text style={styles.year}>{livro.ano}</Text>}
         </View>
       </View>
     </TouchableOpacity>
@@ -48,66 +110,86 @@ export default function BookCard({ livro }) {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: Colors.cardBg,
-    borderRadius: 24,
     flexDirection: 'row',
-    padding: 20,
-    marginBottom: 20,
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.4,
-    shadowRadius: 20,
-    elevation: 12,
+    padding: 16,
+    marginBottom: 16,
+    borderRadius: 22,
     borderWidth: 1,
-    borderColor: Colors.borderGray,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.12,
+    shadowRadius: 18,
+    elevation: 4,
   },
   coverWrap: {
-    borderRadius: 16,
+    borderRadius: 18,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 8,
   },
   cover: {
-    backgroundColor: Colors.mediumGray,
+    borderRadius: 18,
   },
   info: {
     flex: 1,
-    marginLeft: 20,
+    marginLeft: 16,
     justifyContent: 'space-between',
+    minHeight: 132,
+  },
+  topRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 10,
+  },
+  titleWrap: {
+    flex: 1,
+    gap: 4,
   },
   title: {
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: '900',
-    color: Colors.white,
-    letterSpacing: 0.3,
-    lineHeight: 24,
+    lineHeight: 23,
+    letterSpacing: -0.2,
   },
   author: {
-    fontSize: 15,
-    color: Colors.lightGray,
+    fontSize: 14,
     fontWeight: '600',
+    lineHeight: 20,
   },
-  catRow: {
+  heartBtn: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+  },
+  metaRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    justifyContent: 'space-between',
+    gap: 12,
+    marginTop: 8,
+  },
+  categoryRow: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
   },
   category: {
-    fontSize: 14,
-    color: Colors.primary,
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  yearPill: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 999,
+    borderWidth: 1,
+  },
+  year: {
+    fontSize: 12,
     fontWeight: '800',
   },
   footer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  year: {
-    fontSize: 13,
-    color: Colors.mediumGray,
-    fontWeight: '700',
+    marginTop: 10,
+    alignItems: 'flex-start',
   },
 });

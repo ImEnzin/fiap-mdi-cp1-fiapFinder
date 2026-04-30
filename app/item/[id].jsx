@@ -16,6 +16,7 @@ import SecondaryButton from '../../components/SecondaryButton';
 import StatusBadge from '../../components/StatusBadge';
 import { useAuth } from '../../context/AuthContext';
 import { useItens } from '../../context/ItensContext';
+import { useTheme } from '../../context/ThemeContext';
 import { formatDate } from '../../utils/dateUtils';
 
 const { width } = Dimensions.get('window');
@@ -24,6 +25,7 @@ export default function ItemDetalhe() {
   const { id } = useLocalSearchParams();
   const { usuario } = useAuth();
   const { itens, solicitarItem, confirmarRetiradaItem } = useItens();
+  const { theme } = useTheme();
   const [feedback, setFeedback] = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
 
@@ -31,7 +33,7 @@ export default function ItemDetalhe() {
 
   if (!item) {
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: theme.bg }]}>
         <Header title="Detalhe do Item" showBack />
         <View style={styles.errorContainer}>
           <Text style={styles.errorText}>Item não encontrado.</Text>
@@ -41,6 +43,7 @@ export default function ItemDetalhe() {
   }
 
   const isMeu = item.solicitadoPor === usuario?.email;
+  const foiReportadoPorMim = item.reportadoPor && item.reportadoPor === usuario?.email;
 
   const doAction = (fn, successMsg) => {
     setActionLoading(true);
@@ -58,32 +61,32 @@ export default function ItemDetalhe() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.bg }]}>
       <Header title="Detalhe do Item" showBack />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scroll}
       >
         {/* Imagem */}
-        <View style={styles.imageContainer}>
+        <View style={[styles.imageContainer, { backgroundColor: theme.card }]}>
           <Image source={{ uri: item.imagem }} style={styles.image} />
         </View>
 
         <View style={styles.infoSection}>
-          <Text style={styles.title}>{item.nome}</Text>
+          <Text style={[styles.title, { color: theme.text }]}>{item.nome}</Text>
           <View style={styles.metaRow}>
             <StatusBadge status={item.status} />
             <Text style={styles.category}>{item.categoria}</Text>
           </View>
 
           {/* Card de Detalhes */}
-          <View style={styles.detailCard}>
+          <View style={[styles.detailCard, { backgroundColor: theme.card, borderColor: theme.border }]}>
             <View style={styles.detailRow}>
               <View style={styles.detailIconRow}>
                 <Ionicons name="location-outline" size={16} color={Colors.primary} />
-                <Text style={styles.detailLabel}>Local encontrado</Text>
+                <Text style={[styles.detailLabel, { color: theme.subText }]}>Local encontrado</Text>
               </View>
-              <Text style={styles.detailValue}>{item.localEncontrado}</Text>
+              <Text style={[styles.detailValue, { color: theme.text }]}>{item.localEncontrado}</Text>
             </View>
 
             <View style={styles.divider} />
@@ -91,9 +94,9 @@ export default function ItemDetalhe() {
             <View style={styles.detailRow}>
               <View style={styles.detailIconRow}>
                 <Ionicons name="calendar-outline" size={16} color={Colors.primary} />
-                <Text style={styles.detailLabel}>Data encontrado</Text>
+                <Text style={[styles.detailLabel, { color: theme.subText }]}>Data encontrado</Text>
               </View>
-              <Text style={styles.detailValue}>{formatDate(item.dataEncontrado)}</Text>
+              <Text style={[styles.detailValue, { color: theme.text }]}>{formatDate(item.dataEncontrado)}</Text>
             </View>
 
             <View style={styles.divider} />
@@ -101,10 +104,25 @@ export default function ItemDetalhe() {
             <View style={styles.detailRow}>
               <View style={styles.detailIconRow}>
                 <Ionicons name="pricetag-outline" size={16} color={Colors.primary} />
-                <Text style={styles.detailLabel}>Categoria</Text>
+                <Text style={[styles.detailLabel, { color: theme.subText }]}>Categoria</Text>
               </View>
-              <Text style={styles.detailValue}>{item.categoria}</Text>
+              <Text style={[styles.detailValue, { color: theme.text }]}>{item.categoria}</Text>
             </View>
+
+            {item.reportadoPor && (
+              <>
+                <View style={styles.divider} />
+                <View style={styles.detailRow}>
+                  <View style={styles.detailIconRow}>
+                    <Ionicons name="person-circle-outline" size={16} color={Colors.primary} />
+                    <Text style={[styles.detailLabel, { color: theme.subText }]}>Reportado por</Text>
+                  </View>
+                  <Text style={[styles.detailValue, { color: theme.text }]}>
+                    {foiReportadoPorMim ? 'Você' : item.reportadoPor}
+                  </Text>
+                </View>
+              </>
+            )}
 
             {item.solicitadoPor && (
               <>
@@ -112,9 +130,9 @@ export default function ItemDetalhe() {
                 <View style={styles.detailRow}>
                   <View style={styles.detailIconRow}>
                     <Ionicons name="person-outline" size={16} color={Colors.primary} />
-                    <Text style={styles.detailLabel}>Solicitado por</Text>
+                    <Text style={[styles.detailLabel, { color: theme.subText }]}>Solicitado por</Text>
                   </View>
-                  <Text style={styles.detailValue}>
+                  <Text style={[styles.detailValue, { color: theme.text }]}>
                     {isMeu ? 'Você' : item.solicitadoPor}
                   </Text>
                 </View>
@@ -125,9 +143,9 @@ export default function ItemDetalhe() {
           {/* Observações */}
           {item.observacoes ? (
             <>
-              <Text style={styles.obsLabel}>Observações</Text>
-              <View style={styles.obsCard}>
-                <Text style={styles.obsText}>{item.observacoes}</Text>
+              <Text style={[styles.obsLabel, { color: theme.text }]}>Observações</Text>
+              <View style={[styles.obsCard, { backgroundColor: theme.cardAlt }]}>
+                <Text style={[styles.obsText, { color: theme.text }]}>{item.observacoes}</Text>
               </View>
             </>
           ) : null}
@@ -135,8 +153,8 @@ export default function ItemDetalhe() {
           {/* Descrição */}
           {item.descricao ? (
             <>
-              <Text style={styles.descLabel}>Descrição</Text>
-              <Text style={styles.descText}>{item.descricao}</Text>
+              <Text style={[styles.descLabel, { color: theme.text }]}>Descrição</Text>
+              <Text style={[styles.descText, { color: theme.subText }]}>{item.descricao}</Text>
             </>
           ) : null}
 

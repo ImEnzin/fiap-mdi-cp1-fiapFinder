@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -6,9 +6,12 @@ import {
   ScrollView,
   StyleSheet,
   Dimensions,
+  TouchableOpacity,
+  Alert,
 } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Colors from '../../constants/colors';
 import Header from '../../components/Header';
 import PrimaryButton from '../../components/PrimaryButton';
@@ -16,22 +19,50 @@ import SecondaryButton from '../../components/SecondaryButton';
 import StatusBadge from '../../components/StatusBadge';
 import { useAuth } from '../../context/AuthContext';
 import { useLivros } from '../../context/LivrosContext';
+import { useFavoritos } from '../../context/FavoritosContext';
+import { useToast } from '../../context/ToastContext';
+import { useTheme } from '../../context/ThemeContext';
 import { calcularDiasRestantes, formatDate } from '../../utils/dateUtils';
 
 const { width } = Dimensions.get('window');
+const AVALIACOES_KEY = '@avaliacoes';
 
 export default function LivroDetalhe() {
   const { id } = useLocalSearchParams();
   const { usuario } = useAuth();
   const { livros, reservarLivro, renovarEmprestimo, confirmarRetirada, confirmarDevolucao } = useLivros();
+  const { isFavorito, toggleFavorito } = useFavoritos();
+  const { showToast } = useToast();
+  const { theme } = useTheme();
   const [feedback, setFeedback] = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
+  const [minhaAvaliacao, setMinhaAvaliacao] = useState(0);
 
   const livro = livros.find((l) => l.id === id);
+  const favorito = livro ? isFavorito(livro.id) : false;
+
+  useEffect(() => {
+    if (!livro) return;
+    AsyncStorage.getItem(AVALIACOES_KEY).then((raw) => {
+      if (raw) {
+        const all = JSON.parse(raw);
+        setMinhaAvaliacao(all[livro.id] || 0);
+      }
+    });
+  }, [livro?.id]);
+
+  const saveAvaliacao = async (stars) => {
+    setMinhaAvaliacao(stars);
+    const raw = await AsyncStorage.getItem(AVALIACOES_KEY);
+    const all = raw ? JSON.parse(raw) : {};
+    all[livro.id] = stars;
+    await AsyncStorage.setItem(AVALIACOES_KEY, JSON.stringify(all));
+    showToast(`Avaliação de ${stars} estrela${stars !== 1 ? 's' : ''} salva!`, 'success');
+  };
 
   if (!livro) {
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: theme.bg }]}>
         <Header title="Detalhe do Livro" showBack />
         <View style={styles.errorContainer}>
           <Text style={styles.errorText}>Livro não encontrado.</Text>
@@ -52,9 +83,12 @@ export default function LivroDetalhe() {
       const result = fn(...args);
       setActionLoading(false);
       if (result.ok) {
-        setFeedback({ type: 'success', message: getSuccessMsg(fn) });
+        const successMsg = getSuccessMsg(fn);
+        setFeedback({ type: 'success', message: successMsg });
+        showToast(successMsg, 'success');
       } else {
         setFeedback({ type: 'error', message: result.erro });
+        showToast(result.erro, 'error');
       }
       setTimeout(() => setFeedback(null), 4000);
     }, 1200);
@@ -68,36 +102,59 @@ export default function LivroDetalhe() {
     return 'Ação realizada com sucesso!';
   };
 
+  const confirmAction = (title, message, fn, ...args) => {
+    Alert.alert(title, message, [
+      { text: 'Cancelar', style: 'cancel' },
+      { text: 'Confirmar', onPress: () => doAction(fn, ...args) },
+    ]);
+  };
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.bg }]}>
       <Header title="Detalhe do Livro" showBack />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scroll}
       >
-        {/* Capa */}
-        <View style={styles.coverContainer}>
+        {/* Capa + Favorito */}
+        <View style={[styles.coverContainer, { backgroundColor: theme.card }]}>
           <Image source={{ uri: livro.capa }} style={styles.cover} />
+          <TouchableOpacity
+            style={[styles.favBtn, favorito && styles.favBtnActive]}
+            onPress={() => {
+              toggleFavorito(livro.id);
+              showToast(
+                favorito ? 'Removido dos favoritos.' : 'Adicionado aos favoritos!',
+                favorito ? 'info' : 'success'
+              );
+            }}
+          >
+            <Ionicons
+              name={favorito ? 'heart' : 'heart-outline'}
+              size={22}
+              color={favorito ? Colors.primary : '#CCC'}
+            />
+          </TouchableOpacity>
         </View>
 
         <View style={styles.infoSection}>
-          <Text style={styles.title}>{livro.titulo}</Text>
-          <Text style={styles.author}>{livro.autor}</Text>
+          <Text style={[styles.title, { color: theme.text }]}>{livro.titulo}</Text>
+          <Text style={[styles.author, { color: theme.subText }]}>{livro.autor}</Text>
           <View style={styles.metaRow}>
             <StatusBadge status={livro.status} />
             <Text style={styles.category}>{livro.categoria}</Text>
           </View>
 
           {/* Card de Detalhes */}
-          <View style={styles.detailCard}>
+          <View style={[styles.detailCard, { backgroundColor: theme.card, borderColor: theme.border }]}>
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Prazo de empréstimo</Text>
-              <Text style={styles.detailValue}>{livro.prazoDias} dias</Text>
+              <Text style={[styles.detailLabel, { color: theme.subText }]}>Prazo de empréstimo</Text>
+              <Text style={[styles.detailValue, { color: theme.text }]}>{livro.prazoDias} dias</Text>
             </View>
             <View style={styles.divider} />
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Status</Text>
-              <Text style={styles.detailValue}>
+              <Text style={[styles.detailLabel, { color: theme.subText }]}>Status</Text>
+              <Text style={[styles.detailValue, { color: theme.text }]}>
                 {livro.status === 'disponivel'
                   ? 'Disponível para reserva'
                   : livro.status === 'reservado'
@@ -112,8 +169,8 @@ export default function LivroDetalhe() {
               <>
                 <View style={styles.divider} />
                 <View style={styles.detailRow}>
-                  <Text style={styles.detailLabel}>Data da reserva</Text>
-                  <Text style={styles.detailValue}>{formatDate(livro.dataReserva)}</Text>
+                  <Text style={[styles.detailLabel, { color: theme.subText }]}>Data da reserva</Text>
+                  <Text style={[styles.detailValue, { color: theme.text }]}>{formatDate(livro.dataReserva)}</Text>
                 </View>
               </>
             )}
@@ -122,8 +179,8 @@ export default function LivroDetalhe() {
               <>
                 <View style={styles.divider} />
                 <View style={styles.detailRow}>
-                  <Text style={styles.detailLabel}>Data de retirada</Text>
-                  <Text style={styles.detailValue}>{formatDate(livro.dataRetirada)}</Text>
+                  <Text style={[styles.detailLabel, { color: theme.subText }]}>Data de retirada</Text>
+                  <Text style={[styles.detailValue, { color: theme.text }]}>{formatDate(livro.dataRetirada)}</Text>
                 </View>
               </>
             )}
@@ -132,10 +189,11 @@ export default function LivroDetalhe() {
               <>
                 <View style={styles.divider} />
                 <View style={styles.detailRow}>
-                  <Text style={styles.detailLabel}>Devolução prevista</Text>
+                  <Text style={[styles.detailLabel, { color: theme.subText }]}>Devolução prevista</Text>
                   <Text
                     style={[
                       styles.detailValue,
+                      { color: theme.text },
                       diasRestantes < 0 && { color: Colors.error },
                       diasRestantes >= 0 && diasRestantes <= 2 && { color: '#F57C00' },
                     ]}
@@ -157,18 +215,43 @@ export default function LivroDetalhe() {
               <>
                 <View style={styles.divider} />
                 <View style={styles.detailRow}>
-                  <Text style={styles.detailLabel}>Renovações</Text>
-                  <Text style={styles.detailValue}>{livro.renovacoes}x</Text>
+                  <Text style={[styles.detailLabel, { color: theme.subText }]}>Renovações</Text>
+                  <Text style={[styles.detailValue, { color: theme.text }]}>{livro.renovacoes}x</Text>
                 </View>
               </>
             )}
           </View>
 
           {/* Sinopse */}
-          <Text style={styles.sinopseLabel}>Sinopse</Text>
-          <Text style={styles.sinopse}>{livro.sinopse}</Text>
+          <Text style={[styles.sinopseLabel, { color: theme.text }]}>Sinopse</Text>
+          <Text style={[styles.sinopse, { color: theme.subText }]}>{livro.sinopse}</Text>
 
-          {/* Feedback */}
+          {/* Avaliação com estrelas */}
+          {usuario?.perfil !== 'atendente' && (
+            <View style={[styles.ratingCard, { backgroundColor: theme.card, borderColor: theme.border }]}>
+              <View style={styles.ratingHeader}>
+                <Ionicons name="star" size={16} color="#F59E0B" />
+                <Text style={[styles.ratingTitle, { color: theme.text }]}>Sua avaliação</Text>
+              </View>
+              <View style={styles.starsRow}>
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <TouchableOpacity key={star} onPress={() => saveAvaliacao(star)}>
+                    <Ionicons
+                      name={star <= minhaAvaliacao ? 'star' : 'star-outline'}
+                      size={30}
+                      color={star <= minhaAvaliacao ? '#F59E0B' : '#444'}
+                    />
+                  </TouchableOpacity>
+                ))}
+              </View>
+              {minhaAvaliacao > 0 && (
+                <Text style={[styles.ratingLabel, { color: theme.text }]}>
+                  {['', 'Não gostei', 'Regular', 'Bom', 'Ótimo', 'Excelente!'][minhaAvaliacao]}
+                </Text>
+              )}
+            </View>
+          )}
+
           {feedback && (
             <View
               style={[
@@ -191,7 +274,7 @@ export default function LivroDetalhe() {
             {usuario?.perfil !== 'atendente' && livro.status === 'disponivel' && (
               <PrimaryButton
                 title="Reservar Livro"
-                onPress={() => doAction(reservarLivro, livro.id)}
+                onPress={() => confirmAction('Confirmar reserva', `Reservar "${livro.titulo}"?`, reservarLivro, livro.id)}
                 loading={actionLoading}
               />
             )}
@@ -203,7 +286,7 @@ export default function LivroDetalhe() {
               livro.renovacoes < usuario?.maxRenovacoes && (
                 <SecondaryButton
                   title={`Renovar Empréstimo (${livro.renovacoes}/${usuario?.maxRenovacoes})`}
-                  onPress={() => doAction(renovarEmprestimo, livro.id)}
+                  onPress={() => confirmAction('Confirmar renovação', `Renovar o empréstimo de "${livro.titulo}"?`, renovarEmprestimo, livro.id)}
                   loading={actionLoading}
                 />
               )}
@@ -223,7 +306,7 @@ export default function LivroDetalhe() {
             {usuario?.perfil === 'atendente' && livro.status === 'reservado' && (
               <PrimaryButton
                 title="Confirmar Retirada"
-                onPress={() => doAction(confirmarRetirada, livro.id)}
+                onPress={() => confirmAction('Confirmar retirada', `Confirmar retirada de "${livro.titulo}"?`, confirmarRetirada, livro.id)}
                 loading={actionLoading}
               />
             )}
@@ -233,7 +316,7 @@ export default function LivroDetalhe() {
               (livro.status === 'emprestado' || livro.status === 'atrasado') && (
                 <SecondaryButton
                   title="Confirmar Devolução"
-                  onPress={() => doAction(confirmarDevolucao, livro.id)}
+                  onPress={() => confirmAction('Confirmar devolução', `Confirmar devolução de "${livro.titulo}"?`, confirmarDevolucao, livro.id)}
                   loading={actionLoading}
                 />
               )}
@@ -286,6 +369,22 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.darkGray,
     resizeMode: 'cover',
   },
+  favBtn: {
+    marginTop: 14,
+    width: 46, height: 46, borderRadius: 14,
+    backgroundColor: '#1C1C1C',
+    alignItems: 'center', justifyContent: 'center',
+    borderWidth: 1.5, borderColor: '#333',
+  },
+  favBtnActive: { borderColor: Colors.primary, backgroundColor: 'rgba(255,0,85,0.1)' },
+  ratingCard: {
+    backgroundColor: '#F8F8F8', borderRadius: 16, padding: 16, marginBottom: 16,
+    borderWidth: 1, borderColor: '#E8E8E8',
+  },
+  ratingHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 },
+  ratingTitle: { fontSize: 14, fontWeight: '800', color: Colors.black },
+  starsRow: { flexDirection: 'row', gap: 8, marginBottom: 8 },
+  ratingLabel: { fontSize: 13, color: '#F59E0B', fontWeight: '700' },
   infoSection: {
     paddingHorizontal: 18,
     paddingTop: 14,

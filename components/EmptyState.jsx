@@ -2,14 +2,32 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '../constants/colors';
+import { useTheme } from '../context/ThemeContext';
 
 export default function EmptyState({ icon, message }) {
+  const { theme } = useTheme();
+
   return (
     <View style={styles.container}>
-      <View style={styles.iconCircle}>
-        <Ionicons name={icon || 'alert-circle-outline'} size={40} color={Colors.mediumGray} />
+      <View
+        style={[
+          styles.iconCircle,
+          {
+            backgroundColor: theme.mode === 'dark' ? theme.cardAlt : theme.cardAlt,
+            borderColor: theme.border,
+          },
+        ]}
+      >
+        <Ionicons name={icon || 'alert-circle-outline'} size={38} color={Colors.primary} />
       </View>
-      <Text style={styles.message}>{message || 'Nenhum item encontrado.'}</Text>
+
+      <Text style={[styles.message, { color: theme.text }]}>
+        {message || 'Nenhum item encontrado.'}
+      </Text>
+
+      <Text style={[styles.helper, { color: theme.subText }]}>
+        Tente ajustar a busca ou os filtros para encontrar resultados.
+      </Text>
     </View>
   );
 }
@@ -19,22 +37,28 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 60,
-    paddingHorizontal: 30,
+    paddingVertical: 64,
+    paddingHorizontal: 28,
   },
   iconCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: Colors.lightGray,
+    width: 84,
+    height: 84,
+    borderRadius: 42,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 16,
+    marginBottom: 18,
+    borderWidth: 1,
   },
   message: {
-    fontSize: 15,
-    color: Colors.mediumGray,
+    fontSize: 16,
+    fontWeight: '800',
     textAlign: 'center',
-    lineHeight: 22,
+    lineHeight: 24,
+  },
+  helper: {
+    marginTop: 8,
+    fontSize: 13,
+    textAlign: 'center',
+    lineHeight: 20,
   },
 });
