@@ -433,7 +433,7 @@ O projeto deve receber um link real de vídeo ou GIF demonstrando o fluxo princi
 6. Registro de item em Achados e Perdidos.
 7. Alternância para modo escuro.
 
-> Link do vídeo: pendente de inserção após gravação e upload.
+> Link do vídeo: https://youtube.com/shorts/f4Br-6eePLo?si=s4DiBB-7aEgyZaj9
 
 ---
 
