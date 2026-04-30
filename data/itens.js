@@ -99,6 +99,27 @@ const itens = [
     status: 'encontrado',
     observacoes: 'Guarda-chuva grande preto, automático. Esquecido próximo a entrada.',
   },
+  {
+    id: '11',
+    nome: 'Óculos',
+    categoria: 'Acessório',
+    imagem: 'https://images.unsplash.com/photo-1556306510-31ca015374b0?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8N3x8b2N1bG9zfGVufDB8fDB8fHww',
+    localEncontrado: 'Sala 401',
+    dataEncontrado: '2026-04-22',
+    status: 'solicitado',
+    observacoes: 'Óculos preto de grau.',
+  },
+  {
+    id: '12',
+    nome: 'Boné',
+    categoria: 'Acessório',
+    imagem: 'https://images.unsplash.com/photo-1591818343198-4ff334074580?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fEJvbiVDMyVBOXxlbnwwfHwwfHx8MA%3D%3D',
+    localEncontrado: 'Sala 602',
+    dataEncontrado: '2026-04-25',
+    status: 'encontrado',
+    observacoes: 'Boné preto com logo em branco.',
+  },
+    
 ];
 
 export default itens;
