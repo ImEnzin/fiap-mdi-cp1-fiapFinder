@@ -105,8 +105,22 @@ function PainelAtendente({ livros, itens, router, appTheme, pendentes, historico
       </View>
 
       <Text style={[s.sectionTitle, { color: appTheme.text }]}>Fila do Atendente</Text>
+      {pendentes.length > 0 && (
+        <TouchableOpacity style={s.pendingBanner} onPress={() => router.push('/(tabs)/aprovacoes')} activeOpacity={0.88}>
+          <View style={s.pendingIcon}>
+            <Ionicons name="person-add" size={22} color="#FFF" />
+          </View>
+          <View style={s.pendingTextWrap}>
+            <Text style={s.pendingTitle}>
+              {pendentes.length} aprovação{pendentes.length > 1 ? 'es' : ''} pendente{pendentes.length > 1 ? 's' : ''}
+            </Text>
+            <Text style={s.pendingSub}>Toque para revisar novos cadastros.</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color="#FFF" />
+        </TouchableOpacity>
+      )}
       <View style={s.queueGrid}>
-        <TouchableOpacity style={[s.queueCard, { borderLeftColor: Colors.warning }]} onPress={() => router.push('/(tabs)/perfil')}>
+        <TouchableOpacity style={[s.queueCard, { borderLeftColor: Colors.warning }]} onPress={() => router.push('/(tabs)/aprovacoes')}>
           <Ionicons name="person-add" size={18} color={Colors.warning} />
           <Text style={s.queueNum}>{pendentes.length}</Text>
           <Text style={s.queueLabel}>Usuários pendentes</Text>
@@ -401,6 +415,26 @@ const s = StyleSheet.create({
   },
   queueNum: { color: Colors.white, fontSize: 24, fontWeight: '900', marginTop: 8 },
   queueLabel: { color: '#999', fontSize: 11, fontWeight: '700', marginTop: 2 },
+  pendingBanner: {
+    backgroundColor: Colors.warning,
+    borderRadius: 16,
+    padding: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginBottom: 12,
+  },
+  pendingIcon: {
+    width: 42,
+    height: 42,
+    borderRadius: 14,
+    backgroundColor: 'rgba(255,255,255,0.18)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pendingTextWrap: { flex: 1 },
+  pendingTitle: { color: '#FFF', fontSize: 15, fontWeight: '900' },
+  pendingSub: { color: 'rgba(255,255,255,0.78)', fontSize: 12, fontWeight: '700', marginTop: 2 },
   acervoCard: { backgroundColor: Colors.darkGray, borderRadius: 18, padding: 16, marginBottom: 18, borderWidth: 1, borderColor: Colors.borderGray },
   actionsRow: { flexDirection: 'row', gap: 10, marginBottom: 18 },
   actionBtn: { flex: 1, borderRadius: 16, paddingVertical: 18, alignItems: 'center', gap: 6 },

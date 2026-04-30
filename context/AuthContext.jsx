@@ -46,6 +46,7 @@ const AuthContext = createContext();
 export function AuthProvider({ children }) {
   const [usuario, setUsuario] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [pendentesVersion, setPendentesVersion] = useState(0);
 
   // Restaura sessão ao abrir o app
   useEffect(() => {
@@ -108,6 +109,7 @@ export function AuthProvider({ children }) {
     };
     users[key] = newUser;
     await saveData(USERS_KEY, users);
+    setPendentesVersion((v) => v + 1);
 
     // Loga mas com aprovado: false — será redirecionado para tela aguardando
     const u = { ...newUser };
@@ -132,6 +134,7 @@ export function AuthProvider({ children }) {
     if (!users[key]) return { ok: false, erro: 'Usuário não encontrado.' };
     users[key].aprovado = true;
     await saveData(USERS_KEY, users);
+    setPendentesVersion((v) => v + 1);
     await addHistory({
       tipo: 'usuario_aprovado',
       titulo: 'Usuário aprovado',
@@ -155,6 +158,7 @@ export function AuthProvider({ children }) {
     const removed = users[key];
     delete users[key];
     await saveData(USERS_KEY, users);
+    setPendentesVersion((v) => v + 1);
     await addHistory({
       tipo: 'usuario_rejeitado',
       titulo: 'Usuário rejeitado',
@@ -184,6 +188,7 @@ export function AuthProvider({ children }) {
       loadData,
       saveData,
       getPendentes,
+      pendentesVersion,
       aprovarUsuario,
       rejeitarUsuario,
       PERFIS,
