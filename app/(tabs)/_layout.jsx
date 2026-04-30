@@ -81,6 +81,16 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="aprovacoes"
+        options={{
+          title: 'Aprovações',
+          href: isAtendente ? undefined : null,
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="person-add" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="perfil"
         options={{
           title: isAtendente ? 'Sistema' : 'Perfil',

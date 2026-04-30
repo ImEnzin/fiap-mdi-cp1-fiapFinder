@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -32,44 +32,14 @@ function getInitials(nome) {
 
 export default function Perfil() {
   const router = useRouter();
-  const { usuario, logout, getPendentes, aprovarUsuario, rejeitarUsuario } = useAuth();
+  const { usuario, logout } = useAuth();
   const { meusLivros } = useLivros();
   const { meusSolicitados } = useItens();
   const { theme, isDark, toggleTheme } = useTheme();
   const { showToast } = useToast();
   const theme_perfil = PERFIL_THEME[usuario?.perfil] || PERFIL_THEME.aluno;
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const [pendentes, setPendentes] = useState([]);
   const isAtendente = usuario?.perfil === 'atendente';
-
-  const fetchPendentes = useCallback(async () => {
-    if (!isAtendente) return;
-    const list = await getPendentes();
-    setPendentes(list);
-  }, [isAtendente]);
-
-  useEffect(() => { fetchPendentes(); }, [fetchPendentes]);
-
-  const handleAprovar = async (email) => {
-    await aprovarUsuario(email);
-    showToast(`Conta de ${email} aprovada!`, 'success');
-    fetchPendentes();
-  };
-
-  const handleRejeitar = (email) => {
-    Alert.alert('Rejeitar conta', `Rejeitar e remover a conta de ${email}?`, [
-      { text: 'Cancelar', style: 'cancel' },
-      {
-        text: 'Rejeitar',
-        style: 'destructive',
-        onPress: async () => {
-          await rejeitarUsuario(email);
-          showToast(`Conta de ${email} rejeitada.`, 'warning');
-          fetchPendentes();
-        },
-      },
-    ]);
-  };
 
   const handleLogout = () => {
     setShowLogoutModal(true);
@@ -143,54 +113,6 @@ export default function Perfil() {
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
-
-        {/* Painel de Aprovações (apenas atendente) */}
-        {isAtendente && (
-          <View style={[styles.aprovCard, { backgroundColor: theme.card, borderColor: pendentes.length > 0 ? Colors.warning : theme.border }]}>
-            <View style={styles.aprovHeader}>
-              <Ionicons name="time" size={18} color={pendentes.length > 0 ? Colors.warning : theme.icon} />
-              <Text style={[styles.aprovTitle, { color: theme.text }]}>
-                Aprovações Pendentes
-              </Text>
-              {pendentes.length > 0 && (
-                <View style={styles.aprovBadge}>
-                  <Text style={styles.aprovBadgeText}>{pendentes.length}</Text>
-                </View>
-              )}
-            </View>
-            <Text style={[styles.aprovHelp, { color: theme.subText }]}>
-              Revise os cadastros novos aqui. Contas pendentes não acessam o app até serem aprovadas.
-            </Text>
-            {pendentes.length === 0 ? (
-              <Text style={[styles.aprovEmpty, { color: theme.subText }]}>Nenhuma conta aguardando aprovação.</Text>
-            ) : (
-              pendentes.map((p) => (
-                <View key={p.email} style={[styles.aprovItem, { backgroundColor: theme.cardAlt, borderColor: theme.border }]}>
-                  <View style={styles.aprovUserInfo}>
-                    <View style={[styles.aprovInitials, { backgroundColor: Colors.primary }]}>
-                      <Text style={styles.aprovInitialsText}>{getInitials(p.nome)}</Text>
-                    </View>
-                    <View style={{ flex: 1 }}>
-                      <Text style={[styles.aprovUserName, { color: theme.text }]}>{p.nome}</Text>
-                      <Text style={[styles.aprovUserMeta, { color: theme.subText }]}>{p.email}</Text>
-                      <Text style={[styles.aprovUserMeta, { color: theme.subText }]}>RM: {p.rm} • {p.sala}</Text>
-                    </View>
-                  </View>
-                  <View style={styles.aprovActions}>
-                    <TouchableOpacity style={[styles.aprovBtn, { backgroundColor: Colors.success }]} onPress={() => handleAprovar(p.email)}>
-                      <Ionicons name="checkmark" size={14} color="#FFF" />
-                      <Text style={styles.aprovBtnText}>Aprovar</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={[styles.aprovBtn, { backgroundColor: Colors.error }]} onPress={() => handleRejeitar(p.email)}>
-                      <Ionicons name="close" size={14} color="#FFF" />
-                      <Text style={styles.aprovBtnText}>Rejeitar</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              ))
-            )}
-          </View>
-        )}
 
         {/* Stats Row */}
         <View style={styles.statsRow}>
@@ -355,22 +277,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,0,85,0.1)', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 10,
   },
   turmaBadgeText: { color: Colors.primary, fontSize: 12, fontWeight: '700' },
-  aprovCard: { borderRadius: 20, padding: 16, borderWidth: 1.5, marginBottom: 20, marginTop: 8 },
-  aprovHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 14 },
-  aprovTitle: { fontSize: 15, fontWeight: '800', flex: 1 },
-  aprovHelp: { fontSize: 12, lineHeight: 18, marginBottom: 12 },
-  aprovBadge: { backgroundColor: Colors.warning, borderRadius: 10, paddingHorizontal: 8, paddingVertical: 3 },
-  aprovBadgeText: { color: '#FFF', fontSize: 12, fontWeight: '900' },
-  aprovEmpty: { fontSize: 13, textAlign: 'center', paddingVertical: 8 },
-  aprovItem: { borderRadius: 14, padding: 12, borderWidth: 1, marginBottom: 10 },
-  aprovUserInfo: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 10 },
-  aprovInitials: { width: 38, height: 38, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
-  aprovInitialsText: { color: '#FFF', fontWeight: '900', fontSize: 15 },
-  aprovUserName: { fontSize: 14, fontWeight: '800' },
-  aprovUserMeta: { fontSize: 12, marginTop: 2 },
-  aprovActions: { flexDirection: 'row', gap: 8 },
-  aprovBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5, paddingVertical: 8, borderRadius: 10 },
-  aprovBtnText: { color: '#FFF', fontSize: 12, fontWeight: '800' },
   scroll: { paddingHorizontal: 15, paddingBottom: 40 },
   statsRow: { flexDirection: 'row', gap: 10, marginBottom: 25 },
   statCard: { flex: 1, height: 110, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
