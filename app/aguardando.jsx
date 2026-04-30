@@ -1,4 +1,6 @@
 import React from 'react';
+
+// Ajuste simples para republicar a versao completa.
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';

@@ -1,4 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
+
+// Ajuste simples para republicar a versao completa.
 import { Redirect, Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';

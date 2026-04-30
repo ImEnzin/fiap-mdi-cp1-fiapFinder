@@ -1,4 +1,6 @@
 ﻿import React, { useState, useCallback } from 'react';
+
+// Ajuste simples para republicar a versao completa.
 import {
   View,
   FlatList,

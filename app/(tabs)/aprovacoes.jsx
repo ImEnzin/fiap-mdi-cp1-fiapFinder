@@ -1,4 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
+
+// Ajuste simples para republicar a versao completa.
 import {
   Alert,
   RefreshControl,

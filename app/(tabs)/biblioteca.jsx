@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
+
+// Ajuste simples para republicar a versao completa.
 import { View, FlatList, StyleSheet, Text, TouchableOpacity, Image, ScrollView, Dimensions, Alert, RefreshControl } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';

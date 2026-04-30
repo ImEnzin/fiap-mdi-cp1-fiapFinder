@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+
+// Ajuste simples para republicar a versao completa.
 import {
   View,
   Text,
